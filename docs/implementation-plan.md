@@ -37,6 +37,7 @@ These notes change structure and sequencing. They do not remove a functional req
 7. Phase 1 includes one prompt-injection line in a negative log fixture.
 8. The local demo has no login. `createdBy` comes from an optional `X-Actor` header and defaults to `local-dev`. Compose binds services to localhost. Hypothesis confidence is `LOW`, `MEDIUM`, or `HIGH`, plus a written explanation.
 9. Java packages live under `com.aiops.investigator`. The LLM port is selected with `LLM_PROVIDER`, base URL, model, and API key. Versions are pinned in `docs/toolchain.md` from the latest stable releases that were current when Phase 0 was built. Release candidates are not used.
+10. After each phase, write or update a bottom-up guide in `docs/` for the implementation that phase added. Match `docs/python-and-the-ai-service.md` and `docs/java-and-the-backend.md`: language or framework mechanics, then the files in execution order, the real code, the structure, and the nuances. Update an existing guide in the same change when later code makes it wrong. Link a new guide from the README.
 
 ---
 
@@ -119,6 +120,7 @@ After each phase, provide:
 4. Tests run and their actual results.
 5. Known limitations.
 6. The next phase's prerequisites.
+7. A bottom-up guide in `docs/` for the implementation added in that phase, in the style of `docs/python-and-the-ai-service.md` and `docs/java-and-the-backend.md`. Update an existing guide when the phase changes code that guide describes.
 
 Never report a command or test as successful unless it was actually executed and its result observed.
 

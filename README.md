@@ -35,7 +35,7 @@ flowchart LR
 | React UI | A page that says this is a synthetic test environment |
 | PostgreSQL 18 | Chosen and documented. Not started in Phase 0 |
 
-Decisions are in [`docs/adr/`](docs/adr/). Versions are in [`docs/toolchain.md`](docs/toolchain.md). Commands and conventions are in [`docs/development-standards.md`](docs/development-standards.md).
+Decisions are in [`docs/adr/`](docs/adr/). Versions are in [`docs/toolchain.md`](docs/toolchain.md). Commands and conventions are in [`docs/development-standards.md`](docs/development-standards.md). A bottom-up reading of Python and the AI service is in [`docs/python-and-the-ai-service.md`](docs/python-and-the-ai-service.md). The same kind of reading for Java and the backend is in [`docs/java-and-the-backend.md`](docs/java-and-the-backend.md).
 
 ## Local setup
 

@@ -79,6 +79,14 @@ The AI service uses Uvicorn's default console log in Phase 0. The same redaction
 
 `AGENTS.md` states the comment rule. Follow it for new code.
 
+## Phase guides
+
+When a phase's implementation is done, write or update a guide in `docs/` for the code that phase added. The models are [`python-and-the-ai-service.md`](python-and-the-ai-service.md) and [`java-and-the-backend.md`](java-and-the-backend.md).
+
+The guide starts from the language or framework mechanism a new reader needs, then walks the files in the order the program runs them. Quote the code that is in the repository. Explain the project structure and the nuances that are easy to miss. Say what that phase does not do.
+
+A later phase updates an existing guide when it changes code the guide describes. A phase that adds a new area adds a new guide and a link in the README. Do not leave the guide for a follow-up commit.
+
 ## Git
 
 Each implementation phase has its own branch and pull request. Do not put two phases on one branch.

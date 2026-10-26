@@ -83,6 +83,8 @@ Each comment must teach, in plain words:
 
 Write comments next to the code they describe. When you change code, update its comments in the same change. Do not put secrets, credentials, or private data in comments.
 
+When a phase's implementation is done, also write or update a bottom-up guide in `docs/` for the code that phase added. Match `docs/python-and-the-ai-service.md` and `docs/java-and-the-backend.md`: mechanics, files in execution order, the real code, structure, and nuances. Update an existing guide in the same change when later code makes it wrong. Link a new guide from `README.md`. The rule is also in `docs/development-standards.md`.
+
 ## GitHub
 
 One new feature gets its own branch and its own pull request. Do not put two features on the same branch, and do not commit feature work straight to the default branch.
@@ -106,6 +108,7 @@ When the feature is ready, open a pull request that explains what changed and wh
 ## Done means
 
 - New and changed code has the documentation described above.
+- A finished phase has a bottom-up guide in `docs/` for the implementation that phase added, or has updated the existing guide that describes that code.
 - New environment variables are documented in `.env.example`.
 - Once Commands lists checks, those checks pass for the code you changed.
 - A new feature is on its own branch, with a pull request open when a GitHub remote exists.
