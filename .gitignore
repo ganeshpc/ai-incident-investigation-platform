@@ -23,6 +23,22 @@ build/
 coverage/
 target/
 
+# Java, Maven, and editors
+.mvn/wrapper/maven-wrapper.jar
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# Frontend
+dist-ssr/
+*.local
+
 # Python
 .venv/
 __pycache__/
