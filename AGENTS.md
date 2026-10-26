@@ -7,7 +7,7 @@ This repository is an AI-assisted incident investigation platform. It helps an e
 Decisions recorded on 2026-10-26:
 
 - Backend: Java 21, Spring Boot 4.1.x, Maven, Flyway, PostgreSQL. Use springdoc-openapi 3.x when it matches that Boot line.
-- AI service: Python, FastAPI, LangGraph, and Pydantic. The LLM provider is configurable. Tests use a fake provider. xAI is one supported OpenAI-compatible provider (`XAI_API_KEY`, `https://api.x.ai/v1`). Another OpenAI-compatible provider must be selectable from configuration.
+- AI service: Python, FastAPI, LangGraph, and Pydantic. The LLM provider is configurable. Tests use a fake provider. Real investigations use OpenAI (`OPENAI_API_KEY`, Responses API) with `gpt-6-luna` and reasoning effort `none`. xAI remains an alternate provider (`XAI_API_KEY`, `https://api.x.ai/v1`).
 - Frontend: React, TypeScript, and Vite.
 - Local runtime: Docker Compose.
 - Evidence sources start as simulated connectors. A real connector is read-only and is enabled only after its official API and access requirements are verified.
@@ -25,15 +25,40 @@ Application code is not in the tree yet. Record commands here when a phase adds 
 
 ## Commands
 
-None yet. When a toolchain exists, list the exact commands here:
+Details and conventions: `docs/development-standards.md`. Versions: `docs/toolchain.md`.
 
-- Install
-- Dev server
-- Test (full suite and one file)
-- Lint and format
-- Typecheck or build
+Install:
 
-Run the relevant checks before finishing a task, and fix failures you caused.
+- Backend: `cd backend && ./mvnw -B -DskipTests dependency:go-offline` when you want dependencies cached. The wrapper downloads Maven 3.10.0.
+- AI service: `cd ai-service && uv sync`
+- Frontend: `cd frontend && npm install`
+
+Dev servers, each on localhost:
+
+- Backend: `cd backend && ./mvnw spring-boot:run`
+- AI service: `cd ai-service && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- Frontend: `cd frontend && npm run dev`
+
+Test:
+
+- Backend, full: `cd backend && ./mvnw -B verify`
+- Backend, one test class: `cd backend && ./mvnw -B -Dtest=InvestigatorApplicationTests test`
+- AI service, full: `cd ai-service && uv run pytest`
+- AI service, one file: `cd ai-service && uv run pytest tests/test_health.py`
+- Frontend: `cd frontend && npm test`
+
+Lint and format:
+
+- Java: `cd backend && ./mvnw -B spotless:check` and `./mvnw -B spotless:apply`
+- Python: `cd ai-service && uv run ruff check .` and `uv run ruff format .`
+- Frontend: `cd frontend && npm run lint` and `npm run format`
+
+Typecheck or build:
+
+- Python: `cd ai-service && uv run mypy app tests`
+- Frontend: `cd frontend && npm run build`
+
+Run the checks for the area you changed, and fix failures you caused.
 
 ## Conventions
 
@@ -75,7 +100,8 @@ When the feature is ready, open a pull request that explains what changed and wh
 
 - Credentials live only in `.env`.
 - Ask before reading `.env`.
-- `XAI_API_KEY` is the API key for xAI (`https://api.x.ai/v1`). Keep it server-side. Never put it in a browser bundle or a committed file.
+- `OPENAI_API_KEY` is the API key for OpenAI ChatGPT models (`https://api.openai.com/v1`). This is the selected investigation provider. Keep it server-side. Never put it in a browser bundle or a committed file.
+- `XAI_API_KEY` is the API key for xAI (`https://api.x.ai/v1`). It is an alternate provider, not the selected one. Keep it server-side.
 
 ## Done means
 

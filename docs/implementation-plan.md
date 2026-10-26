@@ -1,6 +1,6 @@
 # Saved specification
 
-Saved on 2026-10-26. The specification below is the execution plan as provided. Proposed amendments are not applied in this file until they are accepted.
+Saved on 2026-10-26. The specification below is the execution plan as provided. The accepted decisions and execution notes in this header are part of the plan.
 
 Repository facts at save time:
 
@@ -13,9 +13,30 @@ Repository facts at save time:
 ## Accepted decisions (2026-10-26)
 
 - Backend line: Spring Boot 4.1.x on Java 21, Maven, and springdoc-openapi 3.x when that springdoc line matches the chosen Boot patch.
-- The AI service does not bind to one LLM vendor. Configuration selects the provider. Automated tests use a fake provider and do not call a live model. xAI (`XAI_API_KEY`, `https://api.x.ai/v1`) is one supported OpenAI-compatible provider because this repository already documents that key. Another OpenAI-compatible provider must be selectable without a code change beyond configuration.
+- The AI service keeps a replaceable LLM provider. Configuration selects the provider. Automated tests use a fake provider and do not call a live model.
+- The provider for real investigations is OpenAI, using ChatGPT models through the official API. Source: [OpenAI developer quickstart](https://developers.openai.com/api/docs/quickstart) and [models](https://developers.openai.com/api/docs/models), read on 2026-10-26.
+  - Credential: `OPENAI_API_KEY`, sent only by the Python service as `Authorization: Bearer`. The browser never receives it.
+  - Endpoint used by the current quickstart: `POST https://api.openai.com/v1/responses` through the official OpenAI Python SDK (`client.responses.create`).
+  - Model id: `gpt-6-luna`. On the [pricing page](https://developers.openai.com/api/docs/pricing) read on 2026-10-26, its standard rate is $0.10 per million input tokens and $0.50 per million output tokens. That is the lowest rate among text models that are still available. `gpt-5-nano` is listed cheaper and is marked deprecated. `gpt-4.1-nano` is listed cheaper on output and is marked shut down. Override with `OPENAI_MODEL` if needed.
+  - Reasoning effort is `none`. The [GPT-6 Luna page](https://developers.openai.com/api/docs/models/gpt-6-luna) says the default is `medium`, and reasoning tokens are billed as output. `none` is the lowest-cost setting that page documents. Processing stays on the standard tier.
+  - The model does not receive OpenAI built-in tools such as web search, file search, or computer use. It only reasons over the bounded evidence bundle.
+  - xAI remains an alternate OpenAI-compatible provider (`XAI_API_KEY`, `https://api.x.ai/v1`). It is not the selected provider.
 - New code follows the teaching-comment standard in `AGENTS.md`.
 - Git: the existing scaffold and this plan are committed on `master`. Each implementation phase gets its own branch and pull request.
+
+## Accepted execution notes (2026-10-26)
+
+These notes change structure and sequencing. They do not remove a functional requirement.
+
+1. This repository is the monorepo root. Section 4's tree is created here, not inside a nested `ai-operations-investigator/` directory.
+2. Build in the order in section 18. Real AutoSys, OpenShift, GitHub, and release adapters come after the synthetic product works. Phase numbers in the body stay as written. Until a real endpoint is verified, that connector's real mode stays `UNCONFIGURED`. A failed real connector does not fall back to fixture data.
+3. PostgreSQL, through the Spring Boot backend, is the only system of record. The AI service handles one bounded request at a time. A LangGraph checkpoint database waits until a graph must resume after a process restart.
+4. `POST /api/incidents/investigate` returns `202` after the incident row commits. The idempotency header is `Idempotency-Key`. The same key and body return the original incident. The same key with a different body returns `409`. `POST /api/incidents/{id}/retry` opens a new attempt. `GET /api/incidents/{id}/attempts` shows history. A finished investigation stays finished unless the retry explicitly asks to run again. Successful connectors run again only when that request says so. Validation errors use RFC 9457 problem details. An in-process worker claims persisted attempts and uses a lease so a restart can pick up an attempt left in progress.
+5. Phase 1 checks that scenario files, timestamps, identifiers, and ground-truth references agree. The idempotent database load arrives once the Flyway tables exist.
+6. Scenario 4 history is built by a script with pinned author, committer, and dates. The manifest records the SHAs. The monorepo does not contain a nested `.git` directory.
+7. Phase 1 includes one prompt-injection line in a negative log fixture.
+8. The local demo has no login. `createdBy` comes from an optional `X-Actor` header and defaults to `local-dev`. Compose binds services to localhost. Hypothesis confidence is `LOW`, `MEDIUM`, or `HIGH`, plus a written explanation.
+9. Java packages live under `com.aiops.investigator`. The LLM port is selected with `LLM_PROVIDER`, base URL, model, and API key. Versions are pinned in `docs/toolchain.md` from the latest stable releases that were current when Phase 0 was built. Release candidates are not used.
 
 ---
 

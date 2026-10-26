@@ -1,0 +1,42 @@
+# Process settings for the investigation backend.
+# YAML is an indented text format. Spring Boot reads this file when the process
+# starts and copies the values into its own configuration objects.
+
+server:
+  # Loopback only. Other machines on the network cannot open this port.
+  address: 127.0.0.1
+  port: 8080
+
+spring:
+  application:
+    name: investigator-backend
+  mvc:
+    # Validation failures use RFC 9457 problem details instead of a framework HTML page.
+    problemdetails:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  structured:
+    format:
+      console: logstash
+
+info:
+  app:
+    name: investigator-backend
+    description: Synthetic incident investigation API. This process does not talk to production systems.
+
+springdoc:
+  api-docs:
+    path: /api/openapi
+  swagger-ui:
+    path: /swagger-ui.html

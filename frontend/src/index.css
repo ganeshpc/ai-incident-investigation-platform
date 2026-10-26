@@ -1,0 +1,33 @@
+:root {
+  color: #1c1917;
+  background: #faf7f2;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.banner {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #9a3412;
+  border-radius: 999px;
+  color: #9a3412;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  line-height: 1.2;
+}
