@@ -12,8 +12,8 @@ import org.hibernate.type.SqlTypes;
 /**
  * One observation that belongs to an incident.
  *
- * <p>Phase 2 creates the table and the read API. Connectors insert rows in a later phase. {@code
- * evidence_key} is unique per incident so a retry cannot store the same observation twice.
+ * <p>{@code evidence_key} is unique per incident so a second collection cannot store the same
+ * observation twice. The excerpt is bounded. The hash is of the full fixture file.
  */
 @Entity
 @Table(name = "evidence_records")
@@ -73,6 +73,50 @@ public class EvidenceRecord {
   private String role;
 
   protected EvidenceRecord() {}
+
+  /**
+   * Creates a row from one connector observation.
+   *
+   * @param provenance SIMULATED for fixture files
+   * @param redactionStatus NOT_REQUIRED when the fixture has no secret to remove
+   * @param role the fixture label, or null
+   */
+  public EvidenceRecord(
+      UUID id,
+      UUID incidentId,
+      UUID attemptId,
+      String evidenceKey,
+      String sourceSystem,
+      String workloadId,
+      String evidenceType,
+      Instant eventTime,
+      String eventTimePrecision,
+      Instant retrievalTime,
+      String sourceReference,
+      String attributes,
+      String contentExcerpt,
+      String contentHash,
+      String provenance,
+      String redactionStatus,
+      String role) {
+    this.id = id;
+    this.incidentId = incidentId;
+    this.attemptId = attemptId;
+    this.evidenceKey = evidenceKey;
+    this.sourceSystem = sourceSystem;
+    this.workloadId = workloadId;
+    this.evidenceType = evidenceType;
+    this.eventTime = eventTime;
+    this.eventTimePrecision = eventTimePrecision;
+    this.retrievalTime = retrievalTime;
+    this.sourceReference = sourceReference;
+    this.attributes = attributes;
+    this.contentExcerpt = contentExcerpt;
+    this.contentHash = contentHash;
+    this.provenance = provenance;
+    this.redactionStatus = redactionStatus;
+    this.role = role;
+  }
 
   public UUID getId() {
     return id;

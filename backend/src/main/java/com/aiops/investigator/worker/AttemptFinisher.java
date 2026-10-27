@@ -5,6 +5,8 @@ import com.aiops.investigator.attempt.AttemptStage;
 import com.aiops.investigator.attempt.AttemptStatus;
 import com.aiops.investigator.attempt.InvestigationAttempt;
 import com.aiops.investigator.audit.AuditRecorder;
+import com.aiops.investigator.connector.CollectionOrchestrator;
+import com.aiops.investigator.connector.CollectionOrchestrator.CollectionSummary;
 import com.aiops.investigator.incident.Incident;
 import com.aiops.investigator.incident.IncidentRepository;
 import com.aiops.investigator.incident.IncidentStateMachine;
@@ -18,26 +20,31 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Finishes a claimed attempt.
  *
- * <p>Phase 2 has no connectors and does not call the AI service. Collection ends as partial, and an
- * attempt that was only waiting for analysis ends as partial too. The stored evidence, if a later
- * phase has written any, is left in place.
+ * <p>Collection reads synthetic fixtures. It does not call the AI service. An attempt that was only
+ * waiting for analysis stays partial. Evidence already stored is left in place.
  */
 @Component
 public class AttemptFinisher {
 
-  public static final String NO_CONNECTORS = "No evidence connectors are registered.";
+  public static final String NO_CONNECTORS = CollectionOrchestrator.NO_CONNECTORS;
   public static final String NO_AI = "AI analysis is not configured.";
 
   private final AttemptRepository attempts;
   private final IncidentRepository incidents;
   private final AuditRecorder audits;
+  private final CollectionOrchestrator collections;
   private final Clock clock;
 
   public AttemptFinisher(
-      AttemptRepository attempts, IncidentRepository incidents, AuditRecorder audits, Clock clock) {
+      AttemptRepository attempts,
+      IncidentRepository incidents,
+      AuditRecorder audits,
+      CollectionOrchestrator collections,
+      Clock clock) {
     this.attempts = attempts;
     this.incidents = incidents;
     this.audits = audits;
+    this.collections = collections;
     this.clock = clock;
   }
 
@@ -56,9 +63,15 @@ public class AttemptFinisher {
       audits.record(incident.getId(), attemptId, "AI_ANALYSIS_SKIPPED", "PARTIAL", NO_AI);
       return;
     }
-    move(incident, IncidentStatus.PARTIAL, NO_CONNECTORS, now);
+    CollectionSummary summary = collections.collect(incident, attempt);
+    move(incident, summary.status(), summary.errorSummary(), now);
     attempt.complete(AttemptStage.EVIDENCE_READY, now);
-    audits.record(incident.getId(), attemptId, "COLLECTION_COMPLETED", "PARTIAL", NO_CONNECTORS);
+    audits.record(
+        incident.getId(),
+        attemptId,
+        "COLLECTION_COMPLETED",
+        summary.auditResult(),
+        summary.errorSummary());
   }
 
   /**

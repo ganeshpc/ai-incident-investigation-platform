@@ -2,7 +2,9 @@
 
 This guide explains the system of record added in Phase 2. It assumes [`java-and-the-backend.md`](java-and-the-backend.md). That file walks Java, Maven, and the status route. This file walks what happens after someone asks the backend to investigate a failure.
 
-Phase 2 does not collect evidence and does not call a model. The AI service can be down. The backend still accepts an incident, stores it, and moves it to a finished partial state that says why it stopped.
+Phase 2 does not call a model. The AI service can be down. The backend still accepts an incident and stores it before any slow work.
+
+Phase 3 replaced the empty collection finish. A matching fixture incident is now collected by the synthetic connectors, and the incident becomes `EVIDENCE_READY` when those sources succeed. That path is explained in [`phase-3-synthetic-connectors.md`](phase-3-synthetic-connectors.md). The sentence `No evidence connectors are registered.` remains only when the process has no connector beans.
 
 ## 1. One request, then a separate worker
 
@@ -17,8 +19,7 @@ HTTP thread
 
 worker, after that commit
   claim a waiting attempt with a short lease
-  find that no connector is registered
-  mark the incident PARTIAL
+  run the connectors, or record that none are registered
   mark the attempt COMPLETED
   write an audit row
 ```
@@ -149,7 +150,7 @@ Two requests with the same new key can pass the "does this key exist?" read at t
 ```text
 CREATED              → COLLECTING_EVIDENCE
 COLLECTING_EVIDENCE  → EVIDENCE_READY, PARTIAL, FAILED
-EVIDENCE_READY       → INVESTIGATING
+EVIDENCE_READY       → COLLECTING_EVIDENCE, INVESTIGATING
 INVESTIGATING        → REPORT_READY, PARTIAL, FAILED
 PARTIAL              → COLLECTING_EVIDENCE, INVESTIGATING
 FAILED               → COLLECTING_EVIDENCE, INVESTIGATING
@@ -185,7 +186,7 @@ Rules:
 - The latest attempt is `PENDING` or `RUNNING`: 409, title `Attempt in progress`. The rejection is audited in a new transaction (`REQUIRES_NEW`) so the audit row survives the rollback of the 409.
 - The incident is `REPORT_READY` and `rerunCompletedInvestigation` is false: 409, title `Investigation already finished`.
 - `rerunSuccessfulCollections` true: the incident moves to `COLLECTING_EVIDENCE` and the new attempt stage is `CREATED`.
-- Otherwise, if the latest stage is `INVESTIGATING` or the incident is `REPORT_READY`: the incident moves to `INVESTIGATING` and the new attempt stage is `INVESTIGATING`. Collection is not repeated.
+- Otherwise, if the incident is `EVIDENCE_READY`, the latest stage is `INVESTIGATING`, or the incident is `REPORT_READY`: the incident moves to `INVESTIGATING` and the new attempt stage is `INVESTIGATING`. Collection is not repeated.
 - Otherwise the new attempt collects again.
 
 A finished investigation stays finished until a retry explicitly asks to run again.
@@ -214,7 +215,7 @@ If the incident is still `CREATED`, the claim moves it to `COLLECTING_EVIDENCE` 
 `AttemptFinisher` runs after the claim commits:
 
 - Stage `INVESTIGATING`: incident `PARTIAL`, error summary `AI analysis is not configured.`, attempt `COMPLETED` at stage `INVESTIGATING`, audit `AI_ANALYSIS_SKIPPED`. No model is called.
-- Any other stage: incident `PARTIAL`, error summary `No evidence connectors are registered.`, attempt `COMPLETED` at stage `EVIDENCE_READY`, audit `COLLECTION_COMPLETED`. No report row is inserted.
+- Any other stage: the connectors run. A complete synthetic collection sets the incident to `EVIDENCE_READY`. An incomplete one sets `PARTIAL`. The attempt completes at stage `EVIDENCE_READY`. No report row is inserted. With no connector beans, the error summary is still `No evidence connectors are registered.`
 - A second finish of an attempt that is no longer `RUNNING` does nothing.
 - If finish throws, the worker records the attempt as `FAILED`, moves the incident to `FAILED` when it is not already, and stores `The attempt failed before it could finish.` The log line contains the exception class name, not the SQL text.
 
@@ -235,6 +236,6 @@ curl -s -D - -o /tmp/incident.json \
   http://127.0.0.1:8080/api/incidents/investigate
 ```
 
-The status line is `202`. Within about a second the same incident's `GET` shows `PARTIAL` and the error summary `No evidence connectors are registered.` `GET .../evidence` is an empty page. `GET .../report` is 404. The OpenAPI page is `http://127.0.0.1:8080/swagger-ui.html`.
+The status line is `202`. That body matches scenario 1, so within about a second `GET` shows `EVIDENCE_READY` and `GET .../evidence` lists the fixture records. `GET .../report` is still 404. The OpenAPI page is `http://127.0.0.1:8080/swagger-ui.html`. The collection details are in the Phase 3 guide.
 
 `./mvnw -B verify` is the check for this module. It needs Docker, and it does not need `OPENAI_API_KEY`.

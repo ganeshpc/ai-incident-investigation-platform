@@ -1,13 +1,16 @@
 package com.aiops.investigator.evidence;
 
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-/** Reads evidence rows for one incident. Phase 2 does not insert them. */
+/** Reads and stores evidence rows for one incident. */
 public interface EvidenceRepository extends JpaRepository<EvidenceRecord, UUID> {
+
+  Optional<EvidenceRecord> findByIncidentIdAndEvidenceKey(UUID incidentId, String evidenceKey);
 
   @Query(
       """

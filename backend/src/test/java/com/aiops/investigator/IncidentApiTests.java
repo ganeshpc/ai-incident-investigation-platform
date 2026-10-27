@@ -1,12 +1,19 @@
 package com.aiops.investigator;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.aiops.investigator.attempt.AttemptRepository;
+import com.aiops.investigator.collection.CollectionResult;
+import com.aiops.investigator.collection.CollectionResultRepository;
 import com.aiops.investigator.incident.IncidentRepository;
 import com.aiops.investigator.incident.IncidentStatus;
 import com.aiops.investigator.worker.AttemptFinisher;
@@ -41,6 +48,7 @@ class IncidentApiTests extends PostgresIntegrationTest {
   @Autowired private AttemptRepository attempts;
   @Autowired private WorkloadRepository workloads;
   @Autowired private WorkloadCatalogLoader loader;
+  @Autowired private CollectionResultRepository collections;
 
   @Test
   void workloadCatalogLoadsOnce() throws Exception {
@@ -153,17 +161,127 @@ class IncidentApiTests extends PostgresIntegrationTest {
   }
 
   @Test
-  void workerMarksTheIncidentPartialWithoutTheAiService() throws Exception {
+  void workerCollectsScenarioOneWithoutCallingTheAiService() throws Exception {
     UUID id = create(INVESTIGATE, null);
-    worker.runOnce();
+    collect(id);
     mockMvc
         .perform(get("/api/incidents/" + id))
-        .andExpect(jsonPath("$.status").value("PARTIAL"))
-        .andExpect(jsonPath("$.errorSummary").value(AttemptFinisher.NO_CONNECTORS));
+        .andExpect(jsonPath("$.status").value("EVIDENCE_READY"))
+        .andExpect(jsonPath("$.errorSummary").value(nullValue()));
     mockMvc
         .perform(get("/api/incidents/" + id + "/attempts"))
         .andExpect(jsonPath("$[0].status").value("COMPLETED"))
         .andExpect(jsonPath("$[0].stage").value("EVIDENCE_READY"));
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence?size=100"))
+        .andExpect(jsonPath("$.totalElements").value(13))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s1-run-failed")))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s1-log-validation")))
+        .andExpect(jsonPath("$.items[*].provenance", hasItem("SIMULATED")));
+    mockMvc.perform(get("/api/incidents/" + id + "/report")).andExpect(status().isNotFound());
+    assertEquals(
+        "UNCONFIGURED",
+        collections.findByIncidentId(id).stream()
+            .filter(result -> "WORKFLOW".equals(result.getSourceSystem()))
+            .map(CollectionResult::getStatus)
+            .findFirst()
+            .orElseThrow());
+    assertTrue(
+        collections.findByIncidentId(id).stream()
+            .filter(result -> "GITHUB".equals(result.getSourceSystem()))
+            .anyMatch(result -> result.getDiagnosticMessage().contains("not a GitHub API call")));
+  }
+
+  @Test
+  void shortLookbackDropsTheEarlierNegativeLog() throws Exception {
+    UUID id = create(INVESTIGATE.replace("\"lookbackMinutes\":120", "\"lookbackMinutes\":1"), null);
+    collect(id);
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence?size=100"))
+        .andExpect(jsonPath("$.totalElements").value(12))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s1-run-failed")))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s1-run-success")))
+        .andExpect(jsonPath("$.items[*].evidenceKey", not(hasItem("ev-s1-log-warning"))));
+  }
+
+  @Test
+  void settlementCollectsWhileGithubStaysUnconfigured() throws Exception {
+    UUID id =
+        create(
+            """
+            {"workloadId":"settlement-pipeline-demo","environment":"test","failureTime":"2026-03-17T02:15:00Z","lookbackMinutes":60,"autosysJobName":"DEMO_SETTLE_JOB","jobRunId":"run-settle-20260317-001","incidentType":"BATCH_FAILURE"}
+            """,
+            null);
+    collect(id);
+    mockMvc
+        .perform(get("/api/incidents/" + id))
+        .andExpect(jsonPath("$.status").value("EVIDENCE_READY"));
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence?size=100"))
+        .andExpect(jsonPath("$.totalElements").value(11))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s2-dep")));
+    assertEquals(
+        "UNCONFIGURED",
+        collections.findByIncidentId(id).stream()
+            .filter(result -> "GITHUB".equals(result.getSourceSystem()))
+            .map(CollectionResult::getStatus)
+            .findFirst()
+            .orElseThrow());
+  }
+
+  @Test
+  void caseReviewCollectsWorkflowWithoutAutosys() throws Exception {
+    UUID id =
+        create(
+            """
+            {"workloadId":"case-review-demo","environment":"test","failureTime":"2026-03-18T14:05:00Z","lookbackMinutes":60,"incidentType":"WORKFLOW_FAILURE"}
+            """,
+            null);
+    collect(id);
+    mockMvc
+        .perform(get("/api/incidents/" + id))
+        .andExpect(jsonPath("$.status").value("EVIDENCE_READY"));
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence?size=100"))
+        .andExpect(jsonPath("$.totalElements").value(10))
+        .andExpect(jsonPath("$.items[*].evidenceKey", hasItem("ev-s3-workflow")));
+    assertEquals(
+        "UNCONFIGURED",
+        collections.findByIncidentId(id).stream()
+            .filter(result -> "AUTOSYS".equals(result.getSourceSystem()))
+            .map(CollectionResult::getStatus)
+            .findFirst()
+            .orElseThrow());
+  }
+
+  @Test
+  void unknownFailureTimeDoesNotInventEvidence() throws Exception {
+    UUID id = create(INVESTIGATE.replace("2026-03-16T08:30:00Z", "2020-01-01T00:00:00Z"), null);
+    collect(id);
+    mockMvc
+        .perform(get("/api/incidents/" + id))
+        .andExpect(jsonPath("$.status").value("PARTIAL"))
+        .andExpect(jsonPath("$.errorSummary").value(containsString("No synthetic scenario")));
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence"))
+        .andExpect(jsonPath("$.totalElements").value(0));
+  }
+
+  @Test
+  void collectingAgainDoesNotDuplicateEvidence() throws Exception {
+    UUID id = create(INVESTIGATE, null);
+    collect(id);
+    mockMvc
+        .perform(
+            post("/api/incidents/" + id + "/retry")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"rerunSuccessfulCollections\":true}"))
+        .andExpect(status().isAccepted());
+    collect(id);
+    mockMvc
+        .perform(get("/api/incidents/" + id + "/evidence?size=100"))
+        .andExpect(jsonPath("$.totalElements").value(13));
+    assertEquals(2, attempts.findByIncidentIdOrderByAttemptNumberAsc(id).size());
   }
 
   @Test
@@ -177,7 +295,9 @@ class IncidentApiTests extends PostgresIntegrationTest {
     for (int poll = 0; poll < 30; poll++) {
       worker.runOnce();
     }
-    mockMvc.perform(get("/api/incidents/" + id)).andExpect(jsonPath("$.status").value("PARTIAL"));
+    mockMvc
+        .perform(get("/api/incidents/" + id))
+        .andExpect(jsonPath("$.status").value("EVIDENCE_READY"));
     assertEquals(1, attempts.findByIncidentIdOrderByAttemptNumberAsc(id).size());
   }
 
@@ -198,14 +318,16 @@ class IncidentApiTests extends PostgresIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
         .andExpect(status().isAccepted());
-    worker.runOnce();
+    collect(id);
     mockMvc
         .perform(get("/api/incidents/" + id + "/attempts"))
         .andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].status").value("FAILED"))
         .andExpect(jsonPath("$[0].failureReason").value("database unavailable"))
         .andExpect(jsonPath("$[1].status").value("COMPLETED"));
-    mockMvc.perform(get("/api/incidents/" + id)).andExpect(jsonPath("$.status").value("PARTIAL"));
+    mockMvc
+        .perform(get("/api/incidents/" + id))
+        .andExpect(jsonPath("$.status").value("EVIDENCE_READY"));
   }
 
   @Test
@@ -241,6 +363,29 @@ class IncidentApiTests extends PostgresIntegrationTest {
   void pageSizeIsRejectedWhenItIsOutOfRange() throws Exception {
     mockMvc.perform(get("/api/incidents?page=0&size=0")).andExpect(status().isBadRequest());
     mockMvc.perform(get("/api/incidents?page=-1&size=20")).andExpect(status().isBadRequest());
+  }
+
+  /**
+   * Runs the worker until this incident leaves the queue.
+   *
+   * <p>Earlier tests leave pending attempts in the shared database. One call can claim those
+   * instead of this incident.
+   */
+  private void collect(UUID id) throws Exception {
+    for (int poll = 0; poll < 40; poll++) {
+      worker.runOnce();
+      String status =
+          com.jayway.jsonpath.JsonPath.read(
+              mockMvc
+                  .perform(get("/api/incidents/" + id))
+                  .andReturn()
+                  .getResponse()
+                  .getContentAsString(),
+              "$.status");
+      if (!"CREATED".equals(status) && !"COLLECTING_EVIDENCE".equals(status)) {
+        return;
+      }
+    }
   }
 
   private UUID create(String json, String idempotencyKey) throws Exception {
