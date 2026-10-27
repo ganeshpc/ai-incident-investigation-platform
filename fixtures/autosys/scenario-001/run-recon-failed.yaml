@@ -1,0 +1,10 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-recon-20260316-001
+jobName: DEMO_RECON_JOB
+statusLabel: FAILURE
+statusMeaning: The job process exited with a non-zero status. This label is defined in fixtures/autosys/status-labels.yaml and is not an AutoSys status code.
+exitCode: 42
+startTime: "2026-03-16T08:29:40Z"
+endTime: "2026-03-16T08:30:01Z"
+inputFile: incoming/recon-20260316.csv

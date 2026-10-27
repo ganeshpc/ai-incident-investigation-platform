@@ -1,0 +1,8 @@
+provenance: SIMULATED
+namespace: operations-demo
+podName: invoice-ingest-demo-3
+container: app
+workloadName: invoice-ingest
+labels:
+  app: invoice-ingest
+note: The successful run on 2026-03-19 used pod invoice-ingest-demo-1. This record is the pod that served the failing run.

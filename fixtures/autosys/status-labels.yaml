@@ -1,0 +1,8 @@
+# Status labels used by the synthetic scheduler fixtures.
+# These sentences are the meaning of the labels inside this repository.
+# They are not AutoSys status codes, and a real connector must not assume them.
+provenance: SIMULATED
+labels:
+  SUCCESS: The job process exited with status 0.
+  FAILURE: The job process exited with a non-zero status.
+  NOT_RUN_UPSTREAM_FAILED: The scheduler recorded that this job did not start because a success dependency named in these fixtures was not satisfied.

@@ -1,0 +1,29 @@
+scenarioId: scenario-004-code-regression
+primaryCauseCategory: CODE_REGRESSION
+explanation: Release rel-invoice-20260320 deployed commit ae366f73578063be38807dcc08d861875eedbca0 before the failing run. That commit makes AmountParser reject a decimal point. The input amount is 10.00, which the known-good revision accepted. The README commit is not the deployed commit.
+supportingEvidenceIds:
+  - ev-s4-commit-regression
+  - ev-s4-diff
+  - ev-s4-release-regression
+  - ev-s4-run-failed
+  - ev-s4-log-failed
+  - ev-s4-input
+  - ev-s4-runbook
+consequenceEvidenceIds: []
+negativeEvidenceIds:
+  - ev-s4-commit-unrelated
+contextEvidenceIds:
+  - ev-s4-commit-good
+  - ev-s4-release-good
+  - ev-s4-run-success
+  - ev-s4-log-success
+  - ev-s4-pod
+requiredClaims:
+  - deployed_revision_changed_parser
+forbiddenClaims:
+  - unrelated_readme_commit_is_causal
+  - commit_time_alone_proves_deployment
+expectedMissingEvidence: []
+deployedCommit: ae366f73578063be38807dcc08d861875eedbca0
+unrelatedCommit: 503430c7d53a0ff5b1d0f1a2189f4f0d779b81af
+knownGoodCommit: a383f65cb8a8b10604b8b0ebbb4d371814feb11c

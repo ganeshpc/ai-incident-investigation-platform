@@ -1,0 +1,14 @@
+provenance: SIMULATED
+pods:
+  - podName: settlement-worker-demo-1
+    namespace: operations-demo
+    container: prep
+    workloadName: settlement-worker
+    labels:
+      app: settlement-worker
+  - podName: report-worker-demo-4
+    namespace: operations-demo
+    container: report
+    workloadName: report-worker
+    labels:
+      app: report-worker

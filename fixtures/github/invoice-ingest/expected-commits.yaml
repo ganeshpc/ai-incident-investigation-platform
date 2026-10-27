@@ -1,0 +1,6 @@
+# Produced by app.fixtures.demo_repo.build_demo_repo with pinned author, committer, and dates.
+# A fresh build must print these same ids. The monorepo does not store the .git directory.
+provenance: SIMULATED
+known_good: a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+unrelated_readme: 503430c7d53a0ff5b1d0f1a2189f4f0d779b81af
+regression: ae366f73578063be38807dcc08d861875eedbca0

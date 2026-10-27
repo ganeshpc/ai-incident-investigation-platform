@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+jobName: DEMO_RECON_PUBLISH
+jobType: CMD
+command: java -jar reconciliation-publisher.jar
+description: Publishes a reconciliation result after DEMO_RECON_JOB succeeds.
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

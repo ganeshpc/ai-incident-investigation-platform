@@ -1,0 +1,7 @@
+2026-03-20T10:59:40.000Z INFO pod=invoice-ingest-demo-3 container=app Job starting runId=run-invoice-20260320-001 deployedCommit=ae366f73578063be38807dcc08d861875eedbca0
+2026-03-20T10:59:50.000Z INFO pod=invoice-ingest-demo-3 container=app Selected input file incoming/invoice-20260320.csv
+2026-03-20T11:00:00.000Z ERROR pod=invoice-ingest-demo-3 container=app amount must be integer minor units; decimal point is not accepted
+java.lang.IllegalArgumentException: amount must be integer minor units; decimal point is not accepted
+	at com.demo.invoice.AmountParser.parse(AmountParser.java:20)
+	at com.demo.invoice.InvoiceJob.processRow(InvoiceJob.java:18)
+2026-03-20T11:00:02.000Z ERROR pod=invoice-ingest-demo-3 container=app Job terminating runId=run-invoice-20260320-001 exitCode=9

@@ -46,6 +46,7 @@ Test:
 - AI service, full: `cd ai-service && uv run pytest`
 - AI service, one file: `cd ai-service && uv run pytest tests/test_health.py`
 - Frontend: `cd frontend && npm test`
+- Fixtures, full: `./scripts/load-fixtures.sh` and `cd ai-service && uv run pytest tests/test_scenario_catalog.py`
 
 Lint and format:
 

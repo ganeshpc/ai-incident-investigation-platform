@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+jobName: DEMO_UNRELATED_REPORT_JOB
+jobType: CMD
+command: render-demo-report
+description: Renders a monthly report. No dependency in these fixtures links it to DEMO_PREP_JOB or DEMO_SETTLE_JOB.
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

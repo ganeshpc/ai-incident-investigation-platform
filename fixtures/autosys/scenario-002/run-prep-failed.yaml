@@ -1,0 +1,10 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-prep-20260317-001
+jobName: DEMO_PREP_JOB
+statusLabel: FAILURE
+statusMeaning: The job process exited with a non-zero status. This label is defined in fixtures/autosys/status-labels.yaml and is not an AutoSys status code.
+exitCode: 7
+startTime: "2026-03-17T02:14:10Z"
+endTime: "2026-03-17T02:15:00Z"
+detail: source directory missing /data/in/demo

@@ -1,0 +1,11 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-report-20260317-001
+jobName: DEMO_UNRELATED_REPORT_JOB
+statusLabel: FAILURE
+statusMeaning: The job process exited with a non-zero status. This label is defined in fixtures/autosys/status-labels.yaml and is not an AutoSys status code.
+exitCode: 3
+startTime: "2026-03-17T02:15:40Z"
+endTime: "2026-03-17T02:16:00Z"
+detail: report template DEMO_MONTHLY missing
+dependencyIds: []

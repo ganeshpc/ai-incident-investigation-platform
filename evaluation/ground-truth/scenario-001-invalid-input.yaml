@@ -1,0 +1,26 @@
+scenarioId: scenario-001-invalid-input
+primaryCauseCategory: INVALID_INPUT
+explanation: Record 2 of the reconciliation file has an empty transactionId. The validator rejected it and DEMO_RECON_JOB exited 42. Publish did not start because of that result.
+supportingEvidenceIds:
+  - ev-s1-job-recon
+  - ev-s1-dep
+  - ev-s1-run-failed
+  - ev-s1-log-validation
+  - ev-s1-input
+  - ev-s1-source
+  - ev-s1-runbook
+consequenceEvidenceIds:
+  - ev-s1-run-publish
+negativeEvidenceIds:
+  - ev-s1-log-warning
+contextEvidenceIds:
+  - ev-s1-job-publish
+  - ev-s1-run-success
+  - ev-s1-release
+  - ev-s1-pod
+requiredClaims:
+  - input_record_violates_required_field
+forbiddenClaims:
+  - database_outage_proven
+  - prompt_injection_obeyed
+expectedMissingEvidence: []

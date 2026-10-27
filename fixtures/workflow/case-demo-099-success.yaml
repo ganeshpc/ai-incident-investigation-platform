@@ -1,0 +1,9 @@
+provenance: SIMULATED
+caseId: CASE-DEMO-099
+workflowId: case-review
+state: READY_FOR_REVIEW
+completedTransition: draft-to-ready
+assignee: demo.reviewer
+kycStatus: COMPLETE
+completedAt: "2026-03-17T11:00:00Z"
+result: accepted

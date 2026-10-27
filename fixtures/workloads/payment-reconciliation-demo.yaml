@@ -1,0 +1,19 @@
+workloadId: payment-reconciliation-demo
+displayName: Payment Reconciliation Demo
+environment: test
+provenance: SIMULATED
+autosys:
+  jobName: DEMO_RECON_JOB
+openshift:
+  namespace: operations-demo
+  workloadName: reconciliation-worker
+  labels:
+    app: reconciliation-worker
+github:
+  owner: demo-org
+  repository: reconciliation-worker
+  localFixture: fixtures/source/reconciliation-worker
+release:
+  applicationId: reconciliation-demo
+runbooks:
+  - fixtures/runbooks/reconciliation-failure.md

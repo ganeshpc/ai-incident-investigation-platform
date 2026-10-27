@@ -1,0 +1,9 @@
+provenance: SIMULATED
+applicationId: reconciliation-demo
+environment: test
+releaseId: rel-recon-20260310
+deploymentStatus: DEPLOYED
+deployedRevision: rev-recon-1.4.2
+artifact: reconciliation-worker-1.4.2.jar
+deployedAt: "2026-03-10T15:00:00Z"
+note: The same artifact was deployed before both the successful run on 2026-03-15 and the failed run on 2026-03-16.

@@ -1,0 +1,9 @@
+provenance: SIMULATED
+applicationId: invoice-ingest-demo
+environment: test
+releaseId: rel-invoice-20260320
+deploymentStatus: DEPLOYED
+deployedCommit: ae366f73578063be38807dcc08d861875eedbca0
+artifact: invoice-ingest-1.3.0.jar
+deployedAt: "2026-03-20T10:30:00Z"
+note: deployedCommit is the parser change. It is not the README-only commit 503430c7d53a0ff5b1d0f1a2189f4f0d779b81af.

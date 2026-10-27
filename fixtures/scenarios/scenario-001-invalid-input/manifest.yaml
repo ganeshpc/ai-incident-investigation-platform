@@ -1,0 +1,123 @@
+schemaVersion: 1
+scenarioId: scenario-001-invalid-input
+description: Reconciliation batch rejects a row with a blank transaction id.
+provenance: SIMULATED
+workloadId: payment-reconciliation-demo
+environment: test
+incidentType: BATCH_FAILURE
+failureTime: "2026-03-16T08:30:00Z"
+lookbackMinutes: 120
+autosysJobName: DEMO_RECON_JOB
+jobRunId: run-recon-20260316-001
+summary: DEMO_RECON_JOB exited 42 after record 2 failed validation. DEMO_RECON_PUBLISH did not start.
+evidence:
+  - evidenceId: ev-s1-job-recon
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_DEFINITION
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: DEMO_RECON_JOB
+    contentFile: fixtures/autosys/scenario-001/job-demo-recon.yaml
+    summary: Definition of the reconciliation job.
+  - evidenceId: ev-s1-job-publish
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_DEFINITION
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: DEMO_RECON_PUBLISH
+    contentFile: fixtures/autosys/scenario-001/job-demo-publish.yaml
+    summary: Definition of the publish job that waits for reconciliation.
+  - evidenceId: ev-s1-dep
+    sourceSystem: AUTOSYS
+    evidenceType: DEPENDENCY
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: dep-recon-to-publish
+    contentFile: fixtures/autosys/scenario-001/dependency-recon-publish.yaml
+    summary: Publish starts only after reconciliation succeeds.
+  - evidenceId: ev-s1-run-success
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: context
+    eventTime: "2026-03-15T08:30:20Z"
+    eventTimePrecision: EXACT
+    recordId: run-recon-20260315-001
+    contentFile: fixtures/autosys/scenario-001/run-recon-success.yaml
+    summary: Previous day's reconciliation run exited 0.
+  - evidenceId: ev-s1-run-failed
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: primary
+    eventTime: "2026-03-16T08:30:01Z"
+    eventTimePrecision: EXACT
+    recordId: run-recon-20260316-001
+    contentFile: fixtures/autosys/scenario-001/run-recon-failed.yaml
+    summary: Reconciliation run exited 42.
+  - evidenceId: ev-s1-run-publish
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: consequence
+    eventTime: "2026-03-16T08:31:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-publish-20260316-001
+    contentFile: fixtures/autosys/scenario-001/run-publish-blocked.yaml
+    summary: Publish did not start because reconciliation failed.
+  - evidenceId: ev-s1-log-validation
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: primary
+    eventTime: "2026-03-16T08:30:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-recon-20260316-001
+    contentFile: fixtures/openshift/scenario-001-validation.log.txt
+    summary: Validation exception for a blank transaction id.
+  - evidenceId: ev-s1-log-warning
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: negative
+    eventTime: "2026-03-16T08:15:02Z"
+    eventTimePrecision: EXACT
+    recordId: reconciliation-worker-demo-7f9c
+    contentFile: fixtures/openshift/scenario-001-unrelated-warning.log.txt
+    summary: Pool warning and a prompt-injection line. Not the failure.
+  - evidenceId: ev-s1-input
+    sourceSystem: AUTOSYS
+    evidenceType: INPUT_RECORD
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: recon-20260316.csv
+    contentFile: fixtures/inputs/recon-20260316.csv
+    summary: Input file whose second data row has an empty transaction id.
+  - evidenceId: ev-s1-source
+    sourceSystem: GITHUB
+    evidenceType: SOURCE_FILE
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: TxnIdValidator.java
+    contentFile: fixtures/source/reconciliation-worker/src/main/java/com/demo/recon/TxnIdValidator.java
+    summary: Validator that rejects a blank transaction id.
+  - evidenceId: ev-s1-runbook
+    sourceSystem: RUNBOOK
+    evidenceType: RUNBOOK_EXCERPT
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: reconciliation-failure.md#Required input fields
+    contentFile: fixtures/runbooks/reconciliation-failure.md
+    summary: Runbook rule for the required transaction id.
+  - evidenceId: ev-s1-release
+    sourceSystem: RELEASE
+    evidenceType: RELEASE_RECORD
+    role: context
+    eventTime: "2026-03-10T15:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: rel-recon-20260310
+    contentFile: fixtures/releases/scenario-001-reconciliation.yaml
+    summary: Artifact deployed before both the good run and the failed run.
+  - evidenceId: ev-s1-pod
+    sourceSystem: OPENSHIFT
+    evidenceType: POD
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: reconciliation-worker-demo-7f9c
+    contentFile: fixtures/openshift/scenario-001-pod.yaml
+    summary: Pod that wrote the reconciliation logs.

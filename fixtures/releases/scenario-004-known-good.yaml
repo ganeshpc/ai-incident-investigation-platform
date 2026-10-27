@@ -1,0 +1,8 @@
+provenance: SIMULATED
+applicationId: invoice-ingest-demo
+environment: test
+releaseId: rel-invoice-20260318
+deploymentStatus: DEPLOYED
+deployedCommit: a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+artifact: invoice-ingest-1.2.0.jar
+deployedAt: "2026-03-18T12:00:00Z"

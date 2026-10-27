@@ -1,0 +1,9 @@
+provenance: SIMULATED
+caseId: CASE-DEMO-100
+workflowId: case-review
+requestedTransition: draft-to-ready
+fromState: DRAFT
+toState: READY_FOR_REVIEW
+requestedAt: "2026-03-18T14:05:00Z"
+assignee: null
+kycStatus: PENDING

@@ -1,0 +1,17 @@
+provenance: SIMULATED
+workflowId: case-review
+displayName: Synthetic case review
+states:
+  - DRAFT
+  - READY_FOR_REVIEW
+transitions:
+  - transitionId: draft-to-ready
+    fromState: DRAFT
+    toState: READY_FOR_REVIEW
+    preconditions:
+      - field: assignee
+        rule: present
+      - field: kycStatus
+        rule: equals
+        value: COMPLETE
+note: Generic workflow fixture. It is not a proprietary case-management product.

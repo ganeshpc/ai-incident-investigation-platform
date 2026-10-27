@@ -1,0 +1,20 @@
+workloadId: case-review-demo
+displayName: Case Review Demo
+environment: test
+provenance: SIMULATED
+# This workload has no scheduler job. It is a synthetic case workflow.
+openshift:
+  namespace: operations-demo
+  workloadName: case-review-service
+  labels:
+    app: case-review-service
+github:
+  owner: demo-org
+  repository: case-review-service
+  localFixture: fixtures/source/case-review
+release:
+  applicationId: case-review-demo
+workflow:
+  definition: fixtures/workflow/case-review-definition.yaml
+runbooks:
+  - fixtures/runbooks/case-review-transition.md

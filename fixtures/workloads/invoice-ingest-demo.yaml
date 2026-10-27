@@ -1,0 +1,19 @@
+workloadId: invoice-ingest-demo
+displayName: Invoice Ingest Demo
+environment: test
+provenance: SIMULATED
+autosys:
+  jobName: DEMO_INVOICE_JOB
+openshift:
+  namespace: operations-demo
+  workloadName: invoice-ingest
+  labels:
+    app: invoice-ingest
+github:
+  owner: demo-org
+  repository: invoice-ingest
+  localFixture: fixtures/github/invoice-ingest
+release:
+  applicationId: invoice-ingest-demo
+runbooks:
+  - fixtures/runbooks/invoice-amount-format.md

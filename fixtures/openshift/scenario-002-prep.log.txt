@@ -1,0 +1,3 @@
+2026-03-17T02:14:10.000Z INFO pod=settlement-worker-demo-1 container=prep Job starting runId=run-prep-20260317-001 jobName=DEMO_PREP_JOB
+2026-03-17T02:15:00.000Z ERROR pod=settlement-worker-demo-1 container=prep source directory missing /data/in/demo
+2026-03-17T02:15:00.100Z ERROR pod=settlement-worker-demo-1 container=prep Job terminating runId=run-prep-20260317-001 exitCode=7

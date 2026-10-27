@@ -1,0 +1,22 @@
+scenarioId: scenario-003-workflow-validation
+primaryCauseCategory: WORKFLOW_VALIDATION_REJECTION
+explanation: CASE-DEMO-100 requested READY_FOR_REVIEW without an assignee and with kycStatus PENDING. The application rejected that transition. The service was still writing the response.
+supportingEvidenceIds:
+  - ev-s3-workflow
+  - ev-s3-case-initial
+  - ev-s3-request
+  - ev-s3-log-rejection
+  - ev-s3-source
+  - ev-s3-runbook
+consequenceEvidenceIds: []
+negativeEvidenceIds:
+  - ev-s3-log-infra
+contextEvidenceIds:
+  - ev-s3-case-success
+  - ev-s3-release
+  - ev-s3-pod
+requiredClaims:
+  - transition_rejected_by_field_rule
+forbiddenClaims:
+  - workflow_engine_unavailable
+expectedMissingEvidence: []

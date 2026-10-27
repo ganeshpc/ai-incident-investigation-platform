@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+dependencyId: dep-prep-to-settle
+upstreamJob: DEMO_PREP_JOB
+downstreamJob: DEMO_SETTLE_JOB
+relationship: DOWNSTREAM_STARTS_ONLY_AFTER_UPSTREAM_SUCCESS
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

@@ -1,0 +1,4 @@
+2026-03-19T08:00:00.000Z INFO pod=invoice-ingest-demo-1 container=app Job starting runId=run-invoice-20260319-001 deployedCommit=a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+2026-03-19T08:00:05.000Z INFO pod=invoice-ingest-demo-1 container=app Selected input file incoming/invoice-20260320.csv
+2026-03-19T08:00:06.000Z INFO pod=invoice-ingest-demo-1 container=app AmountParser.parse accepted amount 10.00 for INV-DEMO-1
+2026-03-19T08:00:12.000Z INFO pod=invoice-ingest-demo-1 container=app Job terminating runId=run-invoice-20260319-001 exitCode=0

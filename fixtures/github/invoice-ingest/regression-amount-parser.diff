@@ -1,0 +1,30 @@
+diff --git a/src/main/java/com/demo/invoice/AmountParser.java b/src/main/java/com/demo/invoice/AmountParser.java
+index eecfa09..e73f109 100644
+--- a/src/main/java/com/demo/invoice/AmountParser.java
++++ b/src/main/java/com/demo/invoice/AmountParser.java
+@@ -2,12 +2,12 @@ package com.demo.invoice;
+ 
+ import java.math.BigDecimal;
+ 
+-/** Parses a synthetic invoice amount written with a decimal point. */
++/** Parses a synthetic invoice amount. */
+ public final class AmountParser {
+   private AmountParser() {}
+ 
+   /**
+-   * Accepts a decimal amount such as {@code 10.00}.
++   * Rejects a decimal point. This behavior is the seeded regression.
+    *
+    * @param raw amount column from the invoice file
+    * @return the parsed amount
+@@ -16,6 +16,10 @@ public final class AmountParser {
+     if (raw == null || raw.isBlank()) {
+       throw new IllegalArgumentException("amount is required");
+     }
++    if (raw.indexOf('.') >= 0) {
++      throw new IllegalArgumentException(
++          "amount must be integer minor units; decimal point is not accepted");
++    }
+     return new BigDecimal(raw);
+   }
+ }
