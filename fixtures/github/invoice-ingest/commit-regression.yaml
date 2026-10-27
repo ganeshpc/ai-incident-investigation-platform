@@ -1,0 +1,7 @@
+provenance: SIMULATED
+source: local-git-fixture
+commitId: ae366f73578063be38807dcc08d861875eedbca0
+message: Reject decimal amounts in the parser
+authorDate: "2026-03-20T09:10:00Z"
+paths:
+  - src/main/java/com/demo/invoice/AmountParser.java

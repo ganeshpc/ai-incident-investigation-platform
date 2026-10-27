@@ -1,0 +1,127 @@
+schemaVersion: 1
+scenarioId: scenario-004-code-regression
+description: Deployed parser rejects decimal amounts that the previous revision accepted.
+provenance: SIMULATED
+workloadId: invoice-ingest-demo
+environment: test
+incidentType: BATCH_FAILURE
+failureTime: "2026-03-20T11:00:00Z"
+lookbackMinutes: 180
+autosysJobName: DEMO_INVOICE_JOB
+jobRunId: run-invoice-20260320-001
+summary: DEMO_INVOICE_JOB exited 9 on amount 10.00. The release deployed the parser commit, not the README commit.
+evidence:
+  - evidenceId: ev-s4-commit-good
+    sourceSystem: GITHUB
+    evidenceType: COMMIT
+    role: context
+    eventTime: "2026-03-18T10:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+    contentFile: fixtures/github/invoice-ingest/commit-known-good.yaml
+    summary: Known-good parser commit.
+  - evidenceId: ev-s4-commit-unrelated
+    sourceSystem: GITHUB
+    evidenceType: COMMIT
+    role: negative
+    eventTime: "2026-03-20T09:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: 503430c7d53a0ff5b1d0f1a2189f4f0d779b81af
+    contentFile: fixtures/github/invoice-ingest/commit-unrelated-readme.yaml
+    summary: README-only commit close to the failure.
+  - evidenceId: ev-s4-commit-regression
+    sourceSystem: GITHUB
+    evidenceType: COMMIT
+    role: primary
+    eventTime: "2026-03-20T09:10:00Z"
+    eventTimePrecision: EXACT
+    recordId: ae366f73578063be38807dcc08d861875eedbca0
+    contentFile: fixtures/github/invoice-ingest/commit-regression.yaml
+    summary: Commit that rejects a decimal point.
+  - evidenceId: ev-s4-diff
+    sourceSystem: GITHUB
+    evidenceType: CODE_DIFF
+    role: primary
+    eventTime: "2026-03-20T09:10:00Z"
+    eventTimePrecision: EXACT
+    recordId: ae366f73578063be38807dcc08d861875eedbca0
+    contentFile: fixtures/github/invoice-ingest/regression-amount-parser.diff
+    summary: Diff of AmountParser from the known-good commit to the regression.
+  - evidenceId: ev-s4-release-good
+    sourceSystem: RELEASE
+    evidenceType: RELEASE_RECORD
+    role: context
+    eventTime: "2026-03-18T12:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: rel-invoice-20260318
+    contentFile: fixtures/releases/scenario-004-known-good.yaml
+    summary: Release that deployed the known-good commit.
+  - evidenceId: ev-s4-release-regression
+    sourceSystem: RELEASE
+    evidenceType: RELEASE_RECORD
+    role: primary
+    eventTime: "2026-03-20T10:30:00Z"
+    eventTimePrecision: EXACT
+    recordId: rel-invoice-20260320
+    contentFile: fixtures/releases/scenario-004-regression.yaml
+    summary: Release that deployed the regression commit before the failing run.
+  - evidenceId: ev-s4-run-success
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: context
+    eventTime: "2026-03-19T08:00:12Z"
+    eventTimePrecision: EXACT
+    recordId: run-invoice-20260319-001
+    contentFile: fixtures/autosys/scenario-004/run-invoice-success.yaml
+    summary: Successful run on the known-good commit.
+  - evidenceId: ev-s4-run-failed
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: primary
+    eventTime: "2026-03-20T11:00:02Z"
+    eventTimePrecision: EXACT
+    recordId: run-invoice-20260320-001
+    contentFile: fixtures/autosys/scenario-004/run-invoice-failed.yaml
+    summary: Failing run on the regression commit.
+  - evidenceId: ev-s4-log-success
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: context
+    eventTime: "2026-03-19T08:00:06Z"
+    eventTimePrecision: EXACT
+    recordId: run-invoice-20260319-001
+    contentFile: fixtures/openshift/scenario-004-success.log.txt
+    summary: Known-good run accepted amount 10.00.
+  - evidenceId: ev-s4-log-failed
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: primary
+    eventTime: "2026-03-20T11:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-invoice-20260320-001
+    contentFile: fixtures/openshift/scenario-004-failed.log.txt
+    summary: Failing run rejected the decimal amount.
+  - evidenceId: ev-s4-input
+    sourceSystem: AUTOSYS
+    evidenceType: INPUT_RECORD
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: invoice-20260320.csv
+    contentFile: fixtures/inputs/invoice-20260320.csv
+    summary: Invoice row with amount 10.00.
+  - evidenceId: ev-s4-runbook
+    sourceSystem: RUNBOOK
+    evidenceType: RUNBOOK_EXCERPT
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: invoice-amount-format.md#Expected amount format
+    contentFile: fixtures/runbooks/invoice-amount-format.md
+    summary: Runbook says decimal amounts are valid and a nearby commit is not automatically deployed.
+  - evidenceId: ev-s4-pod
+    sourceSystem: OPENSHIFT
+    evidenceType: POD
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: invoice-ingest-demo-3
+    contentFile: fixtures/openshift/scenario-004-pod.yaml
+    summary: Pod that wrote the failing invoice log.

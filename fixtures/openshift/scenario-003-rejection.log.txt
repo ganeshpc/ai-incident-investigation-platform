@@ -1,0 +1,6 @@
+2026-03-18T14:04:50.000Z INFO pod=case-review-demo-2 container=app Received transition caseId=CASE-DEMO-100 requestedTransition=draft-to-ready
+2026-03-18T14:05:00.000Z ERROR pod=case-review-demo-2 container=app TransitionRejected: READY_FOR_REVIEW requires assignee and kycStatus COMPLETE
+java.lang.IllegalStateException: TransitionRejected: READY_FOR_REVIEW requires assignee and kycStatus COMPLETE
+	at com.demo.workflow.CaseTransitionValidator.requireReadyForReview(CaseTransitionValidator.java:17)
+	at com.demo.workflow.CaseService.requestTransition(CaseService.java:28)
+2026-03-18T14:05:00.200Z INFO pod=case-review-demo-2 container=app Transition response written caseId=CASE-DEMO-100 result=rejected

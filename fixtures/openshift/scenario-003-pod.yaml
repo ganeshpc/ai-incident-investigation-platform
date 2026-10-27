@@ -1,0 +1,7 @@
+provenance: SIMULATED
+namespace: operations-demo
+podName: case-review-demo-2
+container: app
+workloadName: case-review-service
+labels:
+  app: case-review-service

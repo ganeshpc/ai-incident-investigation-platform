@@ -36,6 +36,13 @@ npm test
 npm run build
 ```
 
+Fixture catalog:
+
+```bash
+./scripts/load-fixtures.sh
+cd ai-service && uv run pytest tests/test_scenario_catalog.py
+```
+
 Local processes, each in its own terminal, bound to localhost:
 
 ```bash

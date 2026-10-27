@@ -1,0 +1,16 @@
+workloadId: settlement-pipeline-demo
+displayName: Settlement Pipeline Demo
+environment: test
+provenance: SIMULATED
+# GitHub is intentionally absent. Collection of the other sources must still be possible.
+autosys:
+  jobName: DEMO_SETTLE_JOB
+openshift:
+  namespace: operations-demo
+  workloadName: settlement-worker
+  labels:
+    app: settlement-worker
+release:
+  applicationId: settlement-demo
+runbooks:
+  - fixtures/runbooks/settlement-dependency.md

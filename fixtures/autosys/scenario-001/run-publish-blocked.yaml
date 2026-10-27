@@ -1,0 +1,10 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-publish-20260316-001
+jobName: DEMO_RECON_PUBLISH
+statusLabel: NOT_RUN_UPSTREAM_FAILED
+statusMeaning: The scheduler recorded that this job did not start because a success dependency named in these fixtures was not satisfied. This label is not an AutoSys status code.
+exitCode: null
+recordedAt: "2026-03-16T08:31:00Z"
+blockedByRunId: run-recon-20260316-001
+dependencyId: dep-recon-to-publish

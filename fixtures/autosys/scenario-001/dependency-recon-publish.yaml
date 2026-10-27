@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+dependencyId: dep-recon-to-publish
+upstreamJob: DEMO_RECON_JOB
+downstreamJob: DEMO_RECON_PUBLISH
+relationship: DOWNSTREAM_STARTS_ONLY_AFTER_UPSTREAM_SUCCESS
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

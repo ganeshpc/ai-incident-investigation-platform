@@ -1,0 +1,3 @@
+2026-03-17T02:15:40.000Z INFO pod=report-worker-demo-4 container=report Job starting runId=run-report-20260317-001 jobName=DEMO_UNRELATED_REPORT_JOB
+2026-03-17T02:16:00.000Z ERROR pod=report-worker-demo-4 container=report report template DEMO_MONTHLY missing
+2026-03-17T02:16:00.100Z ERROR pod=report-worker-demo-4 container=report Job terminating runId=run-report-20260317-001 exitCode=3

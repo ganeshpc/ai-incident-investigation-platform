@@ -1,0 +1,9 @@
+2026-03-16T08:29:40.100Z INFO pod=reconciliation-worker-demo-7f9c container=worker Job starting runId=run-recon-20260316-001 jobName=DEMO_RECON_JOB
+2026-03-16T08:29:41.200Z INFO pod=reconciliation-worker-demo-7f9c container=worker Selected input file incoming/recon-20260316.csv
+2026-03-16T08:29:50.000Z INFO pod=reconciliation-worker-demo-7f9c container=worker Processed 1 record
+2026-03-16T08:30:00.000Z ERROR pod=reconciliation-worker-demo-7f9c container=worker record 2 missing required field transactionId
+java.lang.IllegalArgumentException: record 2 missing required field transactionId
+	at com.demo.recon.TxnIdValidator.requireTransactionId(TxnIdValidator.java:15)
+	at com.demo.recon.ReconJob.processRecord(ReconJob.java:21)
+	at com.demo.recon.ReconJob.run(ReconJob.java:12)
+2026-03-16T08:30:01.000Z ERROR pod=reconciliation-worker-demo-7f9c container=worker Job terminating runId=run-recon-20260316-001 exitCode=42

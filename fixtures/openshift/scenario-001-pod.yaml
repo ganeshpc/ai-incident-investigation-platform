@@ -1,0 +1,7 @@
+provenance: SIMULATED
+namespace: operations-demo
+podName: reconciliation-worker-demo-7f9c
+container: worker
+workloadName: reconciliation-worker
+labels:
+  app: reconciliation-worker

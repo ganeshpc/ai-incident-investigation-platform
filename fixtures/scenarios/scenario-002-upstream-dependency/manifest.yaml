@@ -1,0 +1,106 @@
+schemaVersion: 1
+scenarioId: scenario-002-upstream-dependency
+description: Settlement does not start because preparation failed. A report job fails separately.
+provenance: SIMULATED
+workloadId: settlement-pipeline-demo
+environment: test
+incidentType: BATCH_FAILURE
+failureTime: "2026-03-17T02:15:00Z"
+lookbackMinutes: 60
+autosysJobName: DEMO_SETTLE_JOB
+jobRunId: run-settle-20260317-001
+summary: DEMO_PREP_JOB exited 7. DEMO_SETTLE_JOB did not start. DEMO_UNRELATED_REPORT_JOB failed with no dependency on preparation.
+evidence:
+  - evidenceId: ev-s2-job-prep
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_DEFINITION
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: DEMO_PREP_JOB
+    contentFile: fixtures/autosys/scenario-002/job-demo-prep.yaml
+    summary: Definition of the preparation job.
+  - evidenceId: ev-s2-job-settle
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_DEFINITION
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: DEMO_SETTLE_JOB
+    contentFile: fixtures/autosys/scenario-002/job-demo-settle.yaml
+    summary: Definition of the settlement job.
+  - evidenceId: ev-s2-job-report
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_DEFINITION
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: DEMO_UNRELATED_REPORT_JOB
+    contentFile: fixtures/autosys/scenario-002/job-unrelated-report.yaml
+    summary: Report job with no dependency on preparation.
+  - evidenceId: ev-s2-dep
+    sourceSystem: AUTOSYS
+    evidenceType: DEPENDENCY
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: dep-prep-to-settle
+    contentFile: fixtures/autosys/scenario-002/dependency-prep-settle.yaml
+    summary: Settlement waits for preparation to succeed.
+  - evidenceId: ev-s2-run-prep
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: primary
+    eventTime: "2026-03-17T02:15:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-prep-20260317-001
+    contentFile: fixtures/autosys/scenario-002/run-prep-failed.yaml
+    summary: Preparation exited 7 because the source directory was missing.
+  - evidenceId: ev-s2-run-settle
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: consequence
+    eventTime: "2026-03-17T02:15:05Z"
+    eventTimePrecision: EXACT
+    recordId: run-settle-20260317-001
+    contentFile: fixtures/autosys/scenario-002/run-settle-not-run.yaml
+    summary: Settlement did not start.
+  - evidenceId: ev-s2-run-report
+    sourceSystem: AUTOSYS
+    evidenceType: JOB_RUN
+    role: negative
+    eventTime: "2026-03-17T02:16:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-report-20260317-001
+    contentFile: fixtures/autosys/scenario-002/run-unrelated-failed.yaml
+    summary: Report job failed at a similar time and has no dependency edge.
+  - evidenceId: ev-s2-log-prep
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: primary
+    eventTime: "2026-03-17T02:15:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-prep-20260317-001
+    contentFile: fixtures/openshift/scenario-002-prep.log.txt
+    summary: Preparation log naming the missing directory.
+  - evidenceId: ev-s2-log-report
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: negative
+    eventTime: "2026-03-17T02:16:00Z"
+    eventTimePrecision: EXACT
+    recordId: run-report-20260317-001
+    contentFile: fixtures/openshift/scenario-002-unrelated.log.txt
+    summary: Report log for a missing template.
+  - evidenceId: ev-s2-runbook
+    sourceSystem: RUNBOOK
+    evidenceType: RUNBOOK_EXCERPT
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: settlement-dependency.md#Dependency chain
+    contentFile: fixtures/runbooks/settlement-dependency.md
+    summary: Runbook for the preparation to settlement dependency.
+  - evidenceId: ev-s2-pods
+    sourceSystem: OPENSHIFT
+    evidenceType: POD
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: settlement-worker-demo-1
+    contentFile: fixtures/openshift/scenario-002-pods.yaml
+    summary: Pods that wrote the preparation and report logs.

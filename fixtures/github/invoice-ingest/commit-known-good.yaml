@@ -1,0 +1,8 @@
+provenance: SIMULATED
+source: local-git-fixture
+commitId: a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+message: Add decimal amount parser
+authorDate: "2026-03-18T10:00:00Z"
+paths:
+  - README.md
+  - src/main/java/com/demo/invoice/AmountParser.java

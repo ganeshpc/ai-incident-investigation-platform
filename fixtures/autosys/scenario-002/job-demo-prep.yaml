@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+jobName: DEMO_PREP_JOB
+jobType: CMD
+command: prepare-demo-input
+description: Prepares the synthetic settlement input directory.
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

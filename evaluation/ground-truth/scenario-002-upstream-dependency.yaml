@@ -1,0 +1,25 @@
+scenarioId: scenario-002-upstream-dependency
+primaryCauseCategory: UPSTREAM_DEPENDENCY_FAILURE
+explanation: DEMO_PREP_JOB failed because the source directory was missing. DEMO_SETTLE_JOB did not start because dependency dep-prep-to-settle requires that success. The report job failed on its own template and has no dependency edge to preparation.
+supportingEvidenceIds:
+  - ev-s2-job-prep
+  - ev-s2-dep
+  - ev-s2-run-prep
+  - ev-s2-log-prep
+  - ev-s2-runbook
+consequenceEvidenceIds:
+  - ev-s2-run-settle
+negativeEvidenceIds:
+  - ev-s2-run-report
+  - ev-s2-log-report
+contextEvidenceIds:
+  - ev-s2-job-settle
+  - ev-s2-job-report
+  - ev-s2-pods
+requiredClaims:
+  - upstream_failure_blocked_downstream
+forbiddenClaims:
+  - timestamp_proximity_proves_causality
+expectedMissingEvidence:
+  - id: scheduler-condition-evaluation-demo-settle-20260317
+    reason: The fixtures name the dependency and the downstream status label. They do not include a scheduler condition-evaluation audit event.

@@ -1,0 +1,10 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-recon-20260315-001
+jobName: DEMO_RECON_JOB
+statusLabel: SUCCESS
+statusMeaning: The job process exited with status 0. This label is defined in fixtures/autosys/status-labels.yaml and is not an AutoSys status code.
+exitCode: 0
+startTime: "2026-03-15T08:30:01Z"
+endTime: "2026-03-15T08:30:20Z"
+inputFile: incoming/recon-20260315.csv

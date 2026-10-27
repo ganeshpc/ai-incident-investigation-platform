@@ -1,0 +1,97 @@
+schemaVersion: 1
+scenarioId: scenario-003-workflow-validation
+description: A case transition is rejected because assignee and KYC are not ready.
+provenance: SIMULATED
+workloadId: case-review-demo
+environment: test
+incidentType: WORKFLOW_FAILURE
+failureTime: "2026-03-18T14:05:00Z"
+lookbackMinutes: 60
+summary: CASE-DEMO-100 stayed in DRAFT. The service rejected READY_FOR_REVIEW and kept running.
+evidence:
+  - evidenceId: ev-s3-workflow
+    sourceSystem: WORKFLOW
+    evidenceType: WORKFLOW_DEFINITION
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: case-review
+    contentFile: fixtures/workflow/case-review-definition.yaml
+    summary: Transition preconditions for DRAFT to READY_FOR_REVIEW.
+  - evidenceId: ev-s3-case-initial
+    sourceSystem: WORKFLOW
+    evidenceType: CASE_STATE
+    role: primary
+    eventTime: "2026-03-18T14:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: CASE-DEMO-100
+    contentFile: fixtures/workflow/case-demo-100-initial.yaml
+    summary: Case 100 is DRAFT with no assignee and KYC pending.
+  - evidenceId: ev-s3-request
+    sourceSystem: WORKFLOW
+    evidenceType: TRANSITION_REQUEST
+    role: primary
+    eventTime: "2026-03-18T14:05:00Z"
+    eventTimePrecision: EXACT
+    recordId: CASE-DEMO-100
+    contentFile: fixtures/workflow/case-demo-100-request.yaml
+    summary: Request to move case 100 to review.
+  - evidenceId: ev-s3-case-success
+    sourceSystem: WORKFLOW
+    evidenceType: CASE_STATE
+    role: context
+    eventTime: "2026-03-17T11:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: CASE-DEMO-099
+    contentFile: fixtures/workflow/case-demo-099-success.yaml
+    summary: An earlier case completed the same transition.
+  - evidenceId: ev-s3-log-rejection
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: primary
+    eventTime: "2026-03-18T14:05:00Z"
+    eventTimePrecision: EXACT
+    recordId: CASE-DEMO-100
+    contentFile: fixtures/openshift/scenario-003-rejection.log.txt
+    summary: Application rejection of the transition.
+  - evidenceId: ev-s3-log-infra
+    sourceSystem: OPENSHIFT
+    evidenceType: APPLICATION_LOG
+    role: negative
+    eventTime: "2026-03-18T14:04:30Z"
+    eventTimePrecision: EXACT
+    recordId: demo-worker-2
+    contentFile: fixtures/openshift/scenario-003-infra-warning.log.txt
+    summary: Disk-usage warning in the same window.
+  - evidenceId: ev-s3-source
+    sourceSystem: GITHUB
+    evidenceType: SOURCE_FILE
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: CaseTransitionValidator.java
+    contentFile: fixtures/source/case-review/src/main/java/com/demo/workflow/CaseTransitionValidator.java
+    summary: Validator for the review transition.
+  - evidenceId: ev-s3-runbook
+    sourceSystem: RUNBOOK
+    evidenceType: RUNBOOK_EXCERPT
+    role: primary
+    eventTimePrecision: UNKNOWN
+    recordId: case-review-transition.md#Permitted transition
+    contentFile: fixtures/runbooks/case-review-transition.md
+    summary: Runbook rule for the review transition.
+  - evidenceId: ev-s3-release
+    sourceSystem: RELEASE
+    evidenceType: RELEASE_RECORD
+    role: context
+    eventTime: "2026-03-01T09:00:00Z"
+    eventTimePrecision: EXACT
+    recordId: rel-case-review-20260301
+    contentFile: fixtures/releases/scenario-003-case-review.yaml
+    summary: Artifact that served both the accepted and rejected transitions.
+  - evidenceId: ev-s3-pod
+    sourceSystem: OPENSHIFT
+    evidenceType: POD
+    role: context
+    eventTimePrecision: UNKNOWN
+    recordId: case-review-demo-2
+    contentFile: fixtures/openshift/scenario-003-pod.yaml
+    summary: Pod that wrote the transition log.

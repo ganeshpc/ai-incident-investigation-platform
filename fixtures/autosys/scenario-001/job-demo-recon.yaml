@@ -1,0 +1,7 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+jobName: DEMO_RECON_JOB
+jobType: CMD
+command: java -jar reconciliation-worker.jar
+description: Synthetic payment reconciliation batch. This file is not an AutoSys job object.
+statusLabelCatalog: fixtures/autosys/status-labels.yaml

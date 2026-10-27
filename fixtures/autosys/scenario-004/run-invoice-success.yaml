@@ -1,0 +1,11 @@
+provenance: SIMULATED
+scheduler: synthetic-autosys-style
+runId: run-invoice-20260319-001
+jobName: DEMO_INVOICE_JOB
+statusLabel: SUCCESS
+statusMeaning: The job process exited with status 0. This label is defined in fixtures/autosys/status-labels.yaml and is not an AutoSys status code.
+exitCode: 0
+startTime: "2026-03-19T08:00:00Z"
+endTime: "2026-03-19T08:00:12Z"
+deployedCommit: a383f65cb8a8b10604b8b0ebbb4d371814feb11c
+inputFile: incoming/invoice-20260320.csv

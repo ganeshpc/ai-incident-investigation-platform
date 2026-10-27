@@ -1,0 +1,8 @@
+provenance: SIMULATED
+source: local-git-fixture
+commitId: 503430c7d53a0ff5b1d0f1a2189f4f0d779b81af
+message: Document invoice file location
+authorDate: "2026-03-20T09:00:00Z"
+paths:
+  - README.md
+note: This commit does not change AmountParser.java.

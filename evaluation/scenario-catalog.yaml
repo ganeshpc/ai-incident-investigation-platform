@@ -1,0 +1,15 @@
+schemaVersion: 1
+description: Seeded synthetic scenarios. Ground truth lives under evaluation/ground-truth and is not part of the evidence files.
+scenarios:
+  - scenarioId: scenario-001-invalid-input
+    manifest: fixtures/scenarios/scenario-001-invalid-input/manifest.yaml
+    groundTruth: evaluation/ground-truth/scenario-001-invalid-input.yaml
+  - scenarioId: scenario-002-upstream-dependency
+    manifest: fixtures/scenarios/scenario-002-upstream-dependency/manifest.yaml
+    groundTruth: evaluation/ground-truth/scenario-002-upstream-dependency.yaml
+  - scenarioId: scenario-003-workflow-validation
+    manifest: fixtures/scenarios/scenario-003-workflow-validation/manifest.yaml
+    groundTruth: evaluation/ground-truth/scenario-003-workflow-validation.yaml
+  - scenarioId: scenario-004-code-regression
+    manifest: fixtures/scenarios/scenario-004-code-regression/manifest.yaml
+    groundTruth: evaluation/ground-truth/scenario-004-code-regression.yaml
