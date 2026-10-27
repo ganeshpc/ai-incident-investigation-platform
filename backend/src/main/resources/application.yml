@@ -10,10 +10,32 @@ server:
 spring:
   application:
     name: investigator-backend
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/${POSTGRES_DB:investigator}
+    username: ${POSTGRES_USER:investigator}
+    password: ${POSTGRES_PASSWORD:investigator}
+    hikari:
+      connection-init-sql: SET TIME ZONE 'UTC'
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
   mvc:
     # Validation failures use RFC 9457 problem details instead of a framework HTML page.
     problemdetails:
       enabled: true
+
+investigator:
+  fixtures-root: ../fixtures
+  worker:
+    schedule-enabled: true
+    poll-delay-ms: 1000
+    lease: 30s
+    batch-size: 2
 
 management:
   endpoints:

@@ -2,7 +2,7 @@
 
 An engineer submits a failed batch job or workflow. The platform collects evidence from several synthetic systems, builds a timeline, and writes a report that cites that evidence and says what is still uncertain.
 
-Phase 0 is the bootstrap. The three processes start and report that this is a synthetic test environment. Incident storage, connectors, the deterministic investigation, the model workflow, and the report screens come in later phases. The execution plan is [`docs/implementation-plan.md`](docs/implementation-plan.md).
+Phase 0 is the bootstrap: the three processes start and report that this is a synthetic test environment. Phase 2 stores an investigation in PostgreSQL and advances it with an in-process worker. Connectors, the model workflow, and the report screens come in later phases. The execution plan is [`docs/implementation-plan.md`](docs/implementation-plan.md).
 
 ## What it does not do
 
@@ -28,14 +28,14 @@ flowchart LR
   api --> ai
 ```
 
-| Process | Role in Phase 0 |
+| Process | Role |
 |---|---|
-| Spring Boot API | `GET /api/platform/status` and `/actuator/health` |
-| FastAPI service | `GET /health`. It does not call a model yet |
+| Spring Boot API | Status route, incident API, Flyway schema, and the in-process worker |
+| FastAPI service | `GET /health`. The backend does not call it yet |
 | React UI | A page that says this is a synthetic test environment |
-| PostgreSQL 18 | Chosen and documented. Not started in Phase 0 |
+| PostgreSQL 18 | System of record. Compose starts it. Tests start their own container |
 
-Decisions are in [`docs/adr/`](docs/adr/). Versions are in [`docs/toolchain.md`](docs/toolchain.md). Commands and conventions are in [`docs/development-standards.md`](docs/development-standards.md). A bottom-up reading of Python and the AI service is in [`docs/python-and-the-ai-service.md`](docs/python-and-the-ai-service.md). The same kind of reading for Java and the backend is in [`docs/java-and-the-backend.md`](docs/java-and-the-backend.md). The Phase 1 scenarios are explained in [`docs/phase-1-synthetic-scenarios.md`](docs/phase-1-synthetic-scenarios.md).
+Decisions are in [`docs/adr/`](docs/adr/). Versions are in [`docs/toolchain.md`](docs/toolchain.md). Commands and conventions are in [`docs/development-standards.md`](docs/development-standards.md). A bottom-up reading of Python and the AI service is in [`docs/python-and-the-ai-service.md`](docs/python-and-the-ai-service.md). The same kind of reading for Java and the backend is in [`docs/java-and-the-backend.md`](docs/java-and-the-backend.md). The Phase 1 scenarios are explained in [`docs/phase-1-synthetic-scenarios.md`](docs/phase-1-synthetic-scenarios.md). The Phase 2 incident API is explained in [`docs/phase-2-incident-api.md`](docs/phase-2-incident-api.md).
 
 ## Local setup
 
@@ -53,9 +53,10 @@ If you use [direnv](https://direnv.net/), allow the repository once:
 direnv allow
 ```
 
-Phase 0 listens on localhost only.
+The API listens on localhost only. Start PostgreSQL before the backend:
 
 ```bash
+docker compose up -d
 cd backend && ./mvnw spring-boot:run
 cd ai-service && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 cd frontend && npm install && npm run dev
@@ -64,6 +65,8 @@ cd frontend && npm install && npm run dev
 The API status payload is `http://127.0.0.1:8080/api/platform/status`. The API document is `http://127.0.0.1:8080/swagger-ui.html`. The AI health payload is `http://127.0.0.1:8000/health`. The UI is `http://127.0.0.1:5173/`.
 
 ## Tests
+
+Backend tests start PostgreSQL with Testcontainers, so Docker has to be running. `./mvnw -B verify` does not use the Compose database.
 
 ```bash
 cd backend && ./mvnw -B verify

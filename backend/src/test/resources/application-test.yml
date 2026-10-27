@@ -1,0 +1,11 @@
+# Test profile. Spring loads application.yml first, then this file.
+# A second application.yml under src/test/resources would hide the main file,
+# so the worker overrides live in the test profile instead.
+investigator:
+  worker:
+    # The timer must not advance attempts while a test is arranging rows.
+    schedule-enabled: false
+    poll-delay-ms: 60000
+    # Short lease so an expired-lease test does not wait half a minute.
+    lease: 2s
+    batch-size: 2
