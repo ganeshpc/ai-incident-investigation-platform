@@ -2,7 +2,9 @@
 
 This guide is for a reader who is new to this backend. It starts with how a Java program is compiled and started, then walks the files in `backend/` in the order Maven and Spring actually use them.
 
-The sibling guide is [`python-and-the-ai-service.md`](python-and-the-ai-service.md). The two processes are separate programs. This one is the system of record. Phase 0 of it does one job: start an HTTP server and answer `GET /api/platform/status` with a fixed JSON document. It does not open a database and it does not call the AI service.
+The sibling guide is [`python-and-the-ai-service.md`](python-and-the-ai-service.md). The two processes are separate programs. This one is the system of record. It does not call the AI service.
+
+Phase 0 of this process only answered `GET /api/platform/status`. Phase 2 opens PostgreSQL, stores incidents, and runs a worker. That behavior is explained in [`phase-2-incident-api.md`](phase-2-incident-api.md). The rest of this file is still the language and startup walkthrough, using the status route as the smallest example. Where a sentence below used to say the database was absent, it has been updated.
 
 The code below matches the repository. When a later phase changes the backend, update this guide in the same change.
 
@@ -41,23 +43,31 @@ Maven's convention is fixed. Source for the running program is under `src/main`.
 
 ```text
 backend/
-├── pom.xml                         # Maven project: dependencies, Java version, plugins
-├── mvnw                            # script that downloads and runs Maven 3.10.0
-├── .mvn/wrapper/                   # where that Maven download is configured
+├── pom.xml
+├── mvnw                            # downloads and runs Maven 3.10.0
+├── .mvn/wrapper/
 └── src/
     ├── main/
     │   ├── java/com/aiops/investigator/
-    │   │   ├── package-info.java
     │   │   ├── InvestigatorApplication.java
-    │   │   └── api/
-    │   │       ├── package-info.java
-    │   │       ├── PlatformStatus.java
-    │   │       └── PlatformStatusController.java
+    │   │   ├── api/                # HTTP handlers, including the status route
+    │   │   ├── incident/           # rows, state machine, create, retry
+    │   │   ├── attempt/
+    │   │   ├── workload/
+    │   │   ├── evidence/
+    │   │   ├── report/
+    │   │   ├── audit/
+    │   │   ├── worker/
+    │   │   └── config/
     │   └── resources/
-    │       └── application.yml     # settings read at startup
-    └── test/java/com/aiops/investigator/
-        └── InvestigatorApplicationTests.java
+    │       ├── application.yml
+    │       └── db/migration/V1__create_investigation_schema.sql
+    └── test/
+        ├── java/com/aiops/investigator/
+        └── resources/application-test.yml
 ```
+
+Sections 5 through 9 below still follow the status route, because that is the smallest complete path from `main` to JSON. The incident packages are walked in the Phase 2 guide.
 
 `package com.aiops.investigator.api;` means "this file lives in `com/aiops/investigator/api/`." The dots are folder separators, the same idea as Python's `app.main`, but Java checks that the folders and the package line agree at compile time.
 
@@ -86,16 +96,20 @@ This project names itself `com.aiops:investigator:0.0.1-SNAPSHOT`. `SNAPSHOT` me
 
 The runtime libraries are:
 
-| Artifact | Why it is here in Phase 0 |
+| Artifact | Why it is here |
 |---|---|
 | `spring-boot-starter-webmvc` | Embedded server and Spring MVC, which turns an HTTP request into a method call. Boot 4 uses this name. The older name `spring-boot-starter-web` is not what this file declares. |
 | `spring-boot-starter-actuator` | `/actuator/health` and `/actuator/info`. |
-| `spring-boot-starter-validation` | Bean validation. No route validates input yet. The library is here so later request objects can. |
+| `spring-boot-starter-validation` | Bean validation for the investigate request. |
+| `spring-boot-starter-data-jpa` | Maps Java classes to tables. Hibernate validates the mapping. It does not create the tables. |
+| `spring-boot-starter-flyway` and `flyway-database-postgresql` | Runs the SQL migration at startup. |
+| `org.postgresql:postgresql` | The JDBC driver. Scope `runtime`, so application code does not call driver classes directly. |
+| `org.yaml:snakeyaml` | Reads the workload fixture files. |
 | `springdoc-openapi-starter-webmvc-ui` | `/api/openapi` and the Swagger UI page. Its version is `3.2.0` because springdoc is not managed by the Boot parent. |
 
-There is no PostgreSQL driver and no Spring Data dependency. The process can start with no database because nothing on the classpath tries to open one.
+Startup now opens PostgreSQL. `spring.jpa.hibernate.ddl-auto` is `validate`, so a column the Java mapping does not agree with stops the process. Flyway is what creates the columns.
 
-Dependencies with `<scope>test</scope>` are visible to the tests and are not packaged into the running application. `spring-boot-starter-webmvc-test` is what provides `MockMvc`.
+Dependencies with `<scope>test</scope>` are visible to the tests and are not packaged into the running application. `spring-boot-starter-webmvc-test` provides `MockMvc`. `spring-boot-testcontainers` and `testcontainers-postgresql` start a throwaway database for `./mvnw verify`. That command needs a running Docker daemon.
 
 `./mvnw` is a script checked into the repository. The first run downloads Maven 3.10.0 from the URL in `.mvn/wrapper/maven-wrapper.properties`. After that, `./mvnw` and a system Maven of another version are not the same tool. Use the wrapper.
 
@@ -103,7 +117,7 @@ Commands, from `backend/`:
 
 | Command | What runs |
 |---|---|
-| `./mvnw -B verify` | Compile, run tests, then Spotless check. This is the check used before a change is called done. `-B` means batch: no prompts. |
+| `./mvnw -B verify` | Compile, run tests against PostgreSQL in Docker, then Spotless check. This is the check used before a change is called done. `-B` means batch: no prompts. |
 | `./mvnw -B spotless:apply` | Rewrite Java layout. The check only reports differences. |
 | `./mvnw spring-boot:run` | Start the server. |
 | `./mvnw -B -Dtest=InvestigatorApplicationTests test` | Run one test class. |
@@ -142,7 +156,7 @@ spring:
       enabled: true
 ```
 
-When a later request fails validation, the error body is an RFC 9457 problem document instead of an HTML error page. The Phase 0 status route does not fail validation, so this setting is idle until those routes exist.
+When a request fails validation, the error body is an RFC 9457 problem document instead of an HTML error page. The incident routes use it. The status route still does not validate a body. `ApiExceptionHandler` is ordered ahead of Spring's own problem-detail handler so the detail names the field, for example `workloadId`, instead of the fixed sentence "Invalid request content."
 
 ```yaml
 management:
@@ -266,7 +280,7 @@ Spring MVC's path from socket to JSON:
 5. Jackson serializes the returned record.
 6. The server writes `200` and `Content-Type: application/json`, then the body.
 
-A path with no mapping, such as `GET /api/incidents`, does not reach `status()`. Spring MVC returns 404. Phase 0 has no incident routes.
+A path with no mapping does not reach `status()`. Spring MVC returns 404. `GET /api/incidents` is no longer one of those paths. `IncidentController` owns it. The Phase 2 guide follows that request.
 
 `/swagger-ui.html` and `/api/openapi` are extra routes from springdoc. They describe `status()` because of the annotations. They are not written in this class.
 
@@ -274,10 +288,10 @@ A path with no mapping, such as `GET /api/incidents`, does not reach `status()`.
 
 `InvestigatorApplicationTests.java` is under `src/test`, so it is not in the running jar.
 
+The annotations that start Spring and MockMvc are on the superclass `PostgresIntegrationTest`, so this class only extends it:
+
 ```java
-@SpringBootTest
-@AutoConfigureMockMvc
-class InvestigatorApplicationTests {
+class InvestigatorApplicationTests extends PostgresIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
 
@@ -298,7 +312,7 @@ class InvestigatorApplicationTests {
 
 JUnit 5 is the test runner. `@Test` marks a method as one test. The class has no `public` modifier. JUnit can still run it. Only the entry class has to be `public` so the JVM can launch it.
 
-`@SpringBootTest` starts the same application context as the server, including the controller bean. It does not need PostgreSQL, because this application does not open a connection.
+`@SpringBootTest` starts the same application context as the server, including the controller bean. The superclass starts PostgreSQL in Docker first and points the datasource at that container. `./mvnw verify` fails if Docker is not running. MockMvc itself still does not open port 8080.
 
 `@AutoConfigureMockMvc` adds a `MockMvc` bean. `MockMvc` calls the HTTP handlers in memory. No socket opens, so the test does not need port 8080 to be free. That is the same role `TestClient` has in the Python service.
 
@@ -332,15 +346,14 @@ The third test calls `GET /actuator/health` and expects `$.status` to be `UP`. T
 
 **`verify` is stricter than `spring-boot:run`.** The server goal does not run the tests or the Spotless check. A class can start and still fail `verify` because the formatter disagrees.
 
-**Problem details are enabled and unused.** No Phase 0 route returns a validation error. The setting is there so the later incident API does not have to rediscover it.
+**Problem details name the field.** A missing `workloadId` returns problem JSON whose detail contains `workloadId`. The handler class is ordered ahead of Spring Boot's default problem-detail advice, which would otherwise hide the field name.
 
-**Logs are not evidence.** Structured console logs describe the backend process. They are not the investigation record the product will store in PostgreSQL.
+**Logs are not evidence.** Structured console logs describe the backend process. The investigation record is the rows in PostgreSQL.
 
-## 11. What a later phase adds, and where it will go
+## 11. What is still not in this process
 
-Incident storage is not in these classes. When it arrives, the shape should stay the same kind of Java:
+Incident storage, the worker, and the workload catalog are in the tree now. [`phase-2-incident-api.md`](phase-2-incident-api.md) walks them. These pieces are still absent, on purpose:
 
-- Types under `com.aiops.investigator`, so the existing scan finds them. HTTP handlers stay in the `api` package. Database types and connector types get their own packages beside `api`.
-- A Flyway migration under `src/main/resources/db/migration/`, plus the PostgreSQL and Spring Data dependencies in `pom.xml`. Those dependencies are what will make startup open a database. They are intentionally absent now.
-- `POST /api/incidents/investigate` returning `202` after the row commits. The idempotency header and the retry routes are already decided in `docs/adr/0007-accepted-execution-notes.md`. The handler should return a type the way `status()` returns a `PlatformStatus`, and Jackson will serialize it.
-- A client bean that calls the Python service. The backend remains usable when that call fails. Phase 0 does not contain that client, which is why this process never reads `OPENAI_API_KEY`.
+- No connector collects evidence. A finished collection attempt is `PARTIAL` with the sentence `No evidence connectors are registered.`
+- No client calls the Python AI service. This process still does not read `OPENAI_API_KEY`.
+- `GET /api/incidents/{id}/report` returns 404 until a later phase writes a report row.

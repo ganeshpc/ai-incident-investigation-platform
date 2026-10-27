@@ -6,21 +6,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Checks that the backend process can start and answer its bootstrap routes.
  *
- * <p>JUnit is the test runner. A method marked {@link Test} is one test. {@link SpringBootTest}
- * starts the Spring application context, the object that holds the application's beans, without
- * requiring a database. {@link AutoConfigureMockMvc} adds {@link MockMvc}, a test client that calls
- * the HTTP handlers in memory instead of opening a network port.
+ * <p>JUnit is the test runner. A method marked {@link Test} is one test. The superclass starts
+ * PostgreSQL and the Spring application context. {@link MockMvc} calls the HTTP handlers in memory
+ * instead of opening a network port.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-class InvestigatorApplicationTests {
+class InvestigatorApplicationTests extends PostgresIntegrationTest {
 
   /** In-memory HTTP client. Spring fills this field before each test. */
   @Autowired private MockMvc mockMvc;
