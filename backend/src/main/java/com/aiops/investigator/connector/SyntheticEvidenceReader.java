@@ -55,6 +55,7 @@ public class SyntheticEvidenceReader {
               attributes(entry, scenario.scenarioId()),
               file.excerpt(),
               file.sha256(),
+              "SIMULATED",
               entry.role()));
     }
     return List.copyOf(collected);

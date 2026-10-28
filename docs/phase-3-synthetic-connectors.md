@@ -2,7 +2,7 @@
 
 This guide explains evidence collection. It assumes [`phase-2-incident-api.md`](phase-2-incident-api.md). That file walks the incident row, the worker lease, and the API. This file walks what the worker does after it claims an attempt.
 
-Collection reads fixture files. It does not call AutoSys, OpenShift, GitHub, or a release API. It does not call the model. The answer key under `evaluation/ground-truth` is not opened.
+Collection reads fixture files while each source mode is `simulated`, which is the default. It does not call the model. The answer key under `evaluation/ground-truth` is not opened. Phase 4 adds a `real` mode for the documented read APIs. That mode does not read these fixtures. It is explained in [`phase-4-real-adapters.md`](phase-4-real-adapters.md).
 
 ## 1. A connector is a boundary
 

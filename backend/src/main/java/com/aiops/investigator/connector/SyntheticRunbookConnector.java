@@ -1,14 +1,13 @@
 package com.aiops.investigator.connector;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Reads runbook Markdown that the workload names.
  *
  * <p>Lookup is the file path in the manifest. There is no vector search and no extra corpus. A
  * missing file becomes an unavailable collection result rather than an empty success.
+ *
+ * <p>Runbooks stay on local files. There is no remote runbook API in this phase.
  */
-@Component
 public class SyntheticRunbookConnector extends SyntheticFixtureConnector {
 
   public SyntheticRunbookConnector(SyntheticEvidenceReader reader) {

@@ -118,8 +118,7 @@ public class CollectionOrchestrator {
       return new CollectionSummary(IncidentStatus.PARTIAL, message, "PARTIAL");
     }
     if (!anyEvidence) {
-      return new CollectionSummary(
-          IncidentStatus.PARTIAL, "No synthetic evidence was collected.", "PARTIAL");
+      return new CollectionSummary(IncidentStatus.PARTIAL, "No evidence was collected.", "PARTIAL");
     }
     return new CollectionSummary(IncidentStatus.EVIDENCE_READY, null, "SUCCESS");
   }
@@ -200,8 +199,8 @@ public class CollectionOrchestrator {
                 item.attributesJson(),
                 item.contentExcerpt(),
                 item.contentHash(),
-                "SIMULATED",
-                "NOT_REQUIRED",
+                item.provenance(),
+                "REAL".equals(item.provenance()) ? "UNREVIEWED" : "NOT_REQUIRED",
                 item.role()));
       }
     }

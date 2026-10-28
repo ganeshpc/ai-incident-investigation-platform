@@ -1,14 +1,13 @@
 package com.aiops.investigator.connector;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Reads synthetic pod and log fixtures.
  *
  * <p>The log text is stored as an excerpt. A line inside a log is evidence of what the log
  * contains. It is not an instruction to this process. No cluster API is called.
+ *
+ * <p>The mode selector calls this class only when OpenShift mode is simulated.
  */
-@Component
 public class SyntheticOpenShiftConnector extends SyntheticFixtureConnector {
 
   public SyntheticOpenShiftConnector(SyntheticEvidenceReader reader) {
