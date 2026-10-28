@@ -228,12 +228,20 @@ public class IncidentService {
     return incident;
   }
 
+  /**
+   * Chooses the status a retry moves to.
+   *
+   * <p>Evidence that is already collected stays put unless the caller sets {@code
+   * rerunSuccessfulCollections}. That flag is the only reason to return from {@code EVIDENCE_READY}
+   * to collection. Otherwise a finished collection moves on to investigation.
+   */
   private static IncidentStatus retryTarget(
       Incident incident, InvestigationAttempt latest, boolean rerunSuccessfulCollections) {
     if (rerunSuccessfulCollections) {
       return IncidentStatus.COLLECTING_EVIDENCE;
     }
-    if (latest.getStage() == AttemptStage.INVESTIGATING
+    if (incident.getStatus() == IncidentStatus.EVIDENCE_READY
+        || latest.getStage() == AttemptStage.INVESTIGATING
         || incident.getStatus() == IncidentStatus.REPORT_READY) {
       return IncidentStatus.INVESTIGATING;
     }

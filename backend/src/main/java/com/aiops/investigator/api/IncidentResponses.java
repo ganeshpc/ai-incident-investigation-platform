@@ -105,7 +105,7 @@ public final class IncidentResponses {
     }
   }
 
-  /** One evidence row. The list is empty until a connector writes evidence. */
+  /** One evidence row returned by the evidence list. The excerpt is bounded. */
   public record EvidenceResponse(
       UUID id,
       String evidenceKey,

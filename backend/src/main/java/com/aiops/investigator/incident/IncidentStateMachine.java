@@ -22,7 +22,9 @@ public final class IncidentStateMachine {
     ALLOWED.put(
         IncidentStatus.COLLECTING_EVIDENCE,
         EnumSet.of(IncidentStatus.EVIDENCE_READY, IncidentStatus.PARTIAL, IncidentStatus.FAILED));
-    ALLOWED.put(IncidentStatus.EVIDENCE_READY, EnumSet.of(IncidentStatus.INVESTIGATING));
+    ALLOWED.put(
+        IncidentStatus.EVIDENCE_READY,
+        EnumSet.of(IncidentStatus.COLLECTING_EVIDENCE, IncidentStatus.INVESTIGATING));
     ALLOWED.put(
         IncidentStatus.INVESTIGATING,
         EnumSet.of(IncidentStatus.REPORT_READY, IncidentStatus.PARTIAL, IncidentStatus.FAILED));

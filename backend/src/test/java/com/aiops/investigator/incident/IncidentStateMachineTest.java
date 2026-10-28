@@ -28,6 +28,14 @@ class IncidentStateMachineTest {
   }
 
   @Test
+  void evidenceReadyCanBeCollectedAgain() {
+    assertDoesNotThrow(
+        () ->
+            IncidentStateMachine.require(
+                IncidentStatus.EVIDENCE_READY, IncidentStatus.COLLECTING_EVIDENCE));
+  }
+
+  @Test
   void finishedInvestigationCanBeReopenedOnlyThroughTheAllowedTargets() {
     assertDoesNotThrow(
         () ->

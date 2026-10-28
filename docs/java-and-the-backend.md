@@ -352,8 +352,8 @@ The third test calls `GET /actuator/health` and expects `$.status` to be `UP`. T
 
 ## 11. What is still not in this process
 
-Incident storage, the worker, and the workload catalog are in the tree now. [`phase-2-incident-api.md`](phase-2-incident-api.md) walks them. These pieces are still absent, on purpose:
+Incident storage, the worker, the workload catalog, and the synthetic connectors are in the tree now. [`phase-2-incident-api.md`](phase-2-incident-api.md) walks the API. [`phase-3-synthetic-connectors.md`](phase-3-synthetic-connectors.md) walks collection. These pieces are still absent, on purpose:
 
-- No connector collects evidence. A finished collection attempt is `PARTIAL` with the sentence `No evidence connectors are registered.`
-- No client calls the Python AI service. This process still does not read `OPENAI_API_KEY`.
+- No client calls the Python AI service. This process still does not read `OPENAI_API_KEY`. An attempt that reaches analysis is `PARTIAL` with `AI analysis is not configured.`
 - `GET /api/incidents/{id}/report` returns 404 until a later phase writes a report row.
+- No connector calls a live AutoSys, OpenShift, GitHub, or release API.
