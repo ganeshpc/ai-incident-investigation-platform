@@ -1,15 +1,14 @@
 package com.aiops.investigator.connector;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Reads synthetic release records.
  *
  * <p>The stored text is the fixture file. A deployed revision is present only when that file
  * contains one. This class does not add a revision the file does not state, and it does not call a
  * release-management API.
+ *
+ * <p>The mode selector calls this class only when release mode is simulated.
  */
-@Component
 public class SyntheticReleaseConnector extends SyntheticFixtureConnector {
 
   public SyntheticReleaseConnector(SyntheticEvidenceReader reader) {

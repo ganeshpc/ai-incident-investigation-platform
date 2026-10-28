@@ -1,14 +1,13 @@
 package com.aiops.investigator.connector;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Reads synthetic case-workflow fixtures.
  *
  * <p>The case-review workload has a {@code workflow} section and no scheduler job. This connector
  * is unconfigured for a batch workload. It does not call a live case system.
+ *
+ * <p>The mode selector calls this class only in simulated mode. There is no remote workflow API.
  */
-@Component
 public class SyntheticWorkflowConnector extends SyntheticFixtureConnector {
 
   public SyntheticWorkflowConnector(SyntheticEvidenceReader reader) {

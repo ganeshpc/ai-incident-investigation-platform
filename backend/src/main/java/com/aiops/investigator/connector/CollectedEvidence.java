@@ -18,8 +18,9 @@ import java.time.Instant;
  * @param sourceReference repo-relative path of the fixture file
  * @param attributesJson small JSON object of ids and the file path, not the whole file
  * @param contentExcerpt bounded text from the file
- * @param contentHash SHA-256 of the full file bytes
- * @param role fixture label such as primary or context, not an investigation conclusion
+ * @param contentHash SHA-256 of the stored text
+ * @param provenance SIMULATED for fixtures, REAL for a documented API response
+ * @param role fixture label such as primary or context, or null for a real response
  */
 public record CollectedEvidence(
     String evidenceKey,
@@ -32,4 +33,5 @@ public record CollectedEvidence(
     String attributesJson,
     String contentExcerpt,
     String contentHash,
+    String provenance,
     String role) {}

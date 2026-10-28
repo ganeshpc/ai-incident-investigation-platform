@@ -1,15 +1,14 @@
 package com.aiops.investigator.connector;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Reads the local Git fixture named by the workload.
  *
  * <p>A workload with no {@code github} section is unconfigured. That is not a failed GitHub call,
  * and this class does not substitute a different repository. Commit ids and diffs come from the
  * fixture files.
+ *
+ * <p>The mode selector calls this class only when GitHub mode is simulated.
  */
-@Component
 public class SyntheticGithubConnector extends SyntheticFixtureConnector {
 
   public SyntheticGithubConnector(SyntheticEvidenceReader reader) {

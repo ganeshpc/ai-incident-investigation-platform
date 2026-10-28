@@ -356,4 +356,4 @@ Incident storage, the worker, the workload catalog, and the synthetic connectors
 
 - No client calls the Python AI service. This process still does not read `OPENAI_API_KEY`. An attempt that reaches analysis is `PARTIAL` with `AI analysis is not configured.`
 - `GET /api/incidents/{id}/report` returns 404 until a later phase writes a report row.
-- No connector calls a live AutoSys, OpenShift, GitHub, or release API.
+- Real AutoSys, OpenShift, and GitHub reads stay off until `mode` is `real` and the credentials in `.env.example` are set. Release management still has no verified product. [`phase-4-real-adapters.md`](phase-4-real-adapters.md) walks that switch.

@@ -1,16 +1,14 @@
 package com.aiops.investigator.connector;
 
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads synthetic scheduler fixtures for the incident's job.
  *
- * <p>{@code @Component} registers this class as a Spring bean, so the orchestrator receives it in
- * the connector list. The files use scheduler words such as job and run. They are not an AutoSys
- * API response, and this class does not open a network connection.
+ * <p>The mode selector calls this class only when AutoSys mode is simulated. The files use
+ * scheduler words such as job and run. They are not an AutoSys API response, and this class does
+ * not open a network connection.
  */
-@Component
 public class SyntheticAutosysConnector extends SyntheticFixtureConnector {
 
   public SyntheticAutosysConnector(SyntheticEvidenceReader reader) {

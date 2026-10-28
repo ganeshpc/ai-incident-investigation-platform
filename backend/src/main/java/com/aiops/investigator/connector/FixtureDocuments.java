@@ -20,6 +20,19 @@ public final class FixtureDocuments {
   /** Excerpts stored on an evidence row stay at or below this many characters. */
   public static final int EXCERPT_LIMIT = 2000;
 
+  /** Returns the text, or the first {@link #EXCERPT_LIMIT} characters plus a marker. */
+  public static String bounded(String text) {
+    if (text == null || text.length() <= EXCERPT_LIMIT) {
+      return text == null ? "" : text;
+    }
+    return text.substring(0, EXCERPT_LIMIT) + "\n...[truncated]";
+  }
+
+  /** SHA-256 of a UTF-8 string, as 64 hexadecimal characters. */
+  public static String sha256(String text) {
+    return sha256(text.getBytes(StandardCharsets.UTF_8));
+  }
+
   private FixtureDocuments() {}
 
   /**
@@ -47,7 +60,7 @@ public final class FixtureDocuments {
     try {
       byte[] bytes = Files.readAllBytes(resolved);
       String text = new String(bytes, StandardCharsets.UTF_8);
-      return new FixtureFile(relativePath, text, sha256(bytes), excerpt(text));
+      return new FixtureFile(relativePath, text, sha256(bytes), bounded(text));
     } catch (IOException ex) {
       throw new FixtureReadException(
           "MISSING_FIXTURE", "Fixture file could not be read: " + relativePath);
@@ -61,18 +74,6 @@ public final class FixtureDocuments {
     } catch (NoSuchAlgorithmException ex) {
       throw new IllegalStateException("SHA-256 is not available", ex);
     }
-  }
-
-  /**
-   * Returns the file text, or the first {@link #EXCERPT_LIMIT} characters plus a marker.
-   *
-   * <p>The hash is always of the full file. The excerpt is what the evidence API returns.
-   */
-  private static String excerpt(String text) {
-    if (text.length() <= EXCERPT_LIMIT) {
-      return text;
-    }
-    return text.substring(0, EXCERPT_LIMIT) + "\n...[truncated]";
   }
 
   /**
